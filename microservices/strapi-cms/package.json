@@ -1,0 +1,26 @@
+{
+  "name": "tienda-cms-strapi",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Strapi CMS para Tienda Reactiva",
+  "scripts": {
+    "dev": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "devDependencies": {
+    "strapi": "4.15.5",
+    "@strapi/strapi": "4.15.5",
+    "@strapi/plugin-users-permissions": "4.15.5",
+    "@strapi/plugin-i18n": "4.15.5",
+    "@strapi/plugin-graphql": "4.15.5"
+  },
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "dotenv": "^16.0.3"
+  },
+  "strapi": {
+    "uuid": "strapi-uuid"
+  }
+}

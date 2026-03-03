@@ -16,6 +16,7 @@ services:
       - mysql-data:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
       - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - ./database/03-strapi-init.sql:/docker-entrypoint-initdb.d/03-strapi-init.sql
     networks:
       - tienda-network
     healthcheck:
@@ -98,6 +99,39 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  # Strapi CMS
+  strapi-cms:
+    build: 
+      context: ./microservices/strapi-cms
+      dockerfile: Dockerfile.dev
+    container_name: tienda-strapi-cms
+    environment:
+      DATABASE_HOST: mysql
+      DATABASE_PORT: 3306
+      DATABASE_NAME: strapi_db
+      DATABASE_USER: strapi_user
+      DATABASE_PASSWORD: strapi_pass
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      PORT: 1337
+      ADMIN_JWT_SECRET: tu_secreto_admin_jwt_muy_seguro_aqui
+      JWT_SECRET: tu_secreto_jwt_muy_seguro_aqui
+      API_URL: http://localhost:1337
+      ADMIN_URL: http://localhost:1337/admin
+    ports:
+      - "1337:1337"
+    networks:
+      - tienda-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./microservices/strapi-cms:/app
+      - /app/node_modules
+      - /app/.cache
+      - strapi-uploads:/app/public/uploads
+    restart: unless-stopped
+
   # Frontend React
   frontend:
     build: ./frontend
@@ -108,12 +142,15 @@ services:
       - tienda-network
     depends_on:
       - api-gateway
+      - strapi-cms
     restart: unless-stopped
     environment:
       VITE_API_URL: http://localhost:5000/api
+      VITE_CMS_URL: http://localhost:1337
 
 volumes:
   mysql-data:
+  strapi-uploads:
 
 networks:
   tienda-network:

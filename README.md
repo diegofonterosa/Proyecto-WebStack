@@ -1,806 +1,625 @@
-# Consultoría de Publicación Web - Tienda Local
+# 🏗️ Proyecto WebStack - Microservicios con Strapi CMS
 
-## Descripción del Proyecto
+Aplicación e-commerce moderna basada en **arquitectura de microservicios** con **CMS headless Strapi**, **React 18 + Vite**, y preparada para **producción en Vercel + Railway + Strapi Cloud**.
 
-Este proyecto documenta la consultoría técnica brindada a una empresa local para la publicación de su primera página web. Se trata de una **tienda que requiere un catálogo interactivo** de productos, con funcionalidades de búsqueda, filtrado y carrito de compras en línea.
+## 🚀 Características
 
----
+- ✅ **5 Microservicios** independientes y escalables
+  - API Gateway (router central)
+  - Auth Service (autenticación JWT)
+  - Product Service (catálogo de productos)
+  - Order Service (gestión de órdenes)
+  - Strapi CMS (gestión de contenido)
 
-## 1. ANÁLISIS DE ARQUITECTURA (2/2 puntos)
+- ✅ **Frontend Moderno**
+  - React 18 + Vite (hot reload, bundling rápido)
+  - Zustand (state management minimalista)
+  - React Router v6 (SPA con rutas)
+  - Axios (HTTP client)
 
-### Modelo Cliente-Servidor
+- ✅ **Infraestructura Profesional**
+  - Docker & Docker Compose (desarrollo y producción)
+  - MySQL con inicialización automática
+  - Monitoreo de salud (health checks)
+  - Variables de entorno por stage
 
-El modelo cliente-servidor es una arquitectura fundamental en la web moderna. En nuestro caso:
+- ✅ **CMS Integrado**
+  - Strapi 4.15.5 (headless CMS)
+  - Panel admin intuitivo
+  - REST API + GraphQL
+  - Manejo de medios
+  - Webhooks para sincronización
 
-#### **Componentes de la Arquitectura**
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    INTERNET (HTTP/HTTPS)                    │
-└─────────────────────────────────────────────────────────────┘
-         ▲                                      ▼
-   [Navegador Cliente]                  [Servidor Web]
-     - HTML/CSS/JS                      - Apache/Nginx/IIS
-     - Cache local                      - Procesamiento
-     - Interactividad                   - Base de Datos
-     - Experiencia Usuario              - Almacenamiento
-```
-
-#### **Componentes Necesarios para Servir la Web**
-
-1. **Cliente Web**: Navegadores (Chrome, Firefox, Safari) que solicitan recursos
-2. **Servidor Web**: Máquina que aloja el sitio y responde peticiones
-3. **Protocolo HTTP/HTTPS**: Comunicación entre cliente y servidor
-4. **Sistema Operativo**: Linux/Windows gestiona recursos del servidor
-5. **Base de Datos**: MySQL/PostgreSQL para almacenar catálogo y pedidos
-6. **Certificado SSL/TLS**: Para proteger transacciones (HTTPS)
-7. **DNS**: Sistema que traduce dominios a direcciones IP
-
-#### **Justificación para la Tienda**
-
-Una tienda necesita:
-- **Servidor web robusto** para manejar múltiples conexiones simultáneas
-- **Base de datos relacional** para administrar productos, usuarios y pedidos
-- **Comunicación cifrada (HTTPS)** para proteger datos de clientes
-- **Sistema de caché** para optimizar rendimiento
+- ✅ **Deployment Documentado**
+  - Vercel (frontend)
+  - Railway (apis)
+  - Strapi Cloud o Heroku (CMS)
+  - AWS RDS (base de datos producción)
+  - GitHub Actions CI/CD
 
 ---
 
-## 2. TIPOLOGÍA DE WEB: SITIO DINÁMICO (3/3 puntos)
+## 📋 Tabla de Contenidos
 
-### Análisis Comparativo
-
-| Característica | Sitio Estático | Sitio Dinámico |
-|---|---|---|
-| **Contenido** | Fijo, mismo para todos | Cambia según datos/usuario |
-| **HTML** | Archivos pre-generados | Generado en tiempo real |
-| **Base de Datos** | No requiere | Esencial |
-| **Interactividad** | Limitada | Alta |
-| **Rendimiento** | Muy rápido | Depende de optimización |
-| **Costo Servidor** | Bajo | Moderado-Alto |
-| **Mantenimiento** | Bajo | Requiere especialistas |
-
-### Decisión Final: **SITIO DINÁMICO**
-
-#### **Justificación**
-
-La tienda requiere funcionalidades que **solo son posibles con un sitio dinámico**:
-
-1. **Catálogo Interactivo**
-   - Productos almacenados en base de datos
-   - Búsqueda y filtrado en tiempo real
-   - Actualización automática de inventario
-
-2. **Interoperabilidad**
-   - Sistema de carrito de compras persistente
-   - Registro y autenticación de usuarios
-   - Histórico de pedidos personalizado
-
-3. **Dinamismo Comercial**
-   - Cambios de precios sin republish
-   - Promociones y descuentos automatizados
-   - Gestión de stock en vivo
-
-4. **Seguridad en Transacciones**
-   - Procesamiento seguro de pagos
-   - Validación de datos del lado del servidor
-   - Cifrado de información sensible
-
-**Conclusión**: Un sitio estático sería insuficiente. Se requiere **arquitectura LAMP/LEMP** (Linux + Apache/Nginx + MySQL + PHP/Python) para cumplir objetivos de negocio.
+1. [Requisitos Previos](#-requisitos-previos)
+2. [Inicio Rápido (5 min)](#-inicio-rápido-5-min)
+3. [Estructura del Proyecto](#-estructura-del-proyecto)
+4. [Documentación Detallada](#-documentación-detallada)
+5. [Comandos Útiles](#-comandos-útiles)
+6. [Deployment](#-deployment)
+7. [Troubleshooting](#-troubleshooting)
 
 ---
 
-## 3. SELECCIÓN TECNOLÓGICA: NGINX (2/2 puntos)
+## 💻 Requisitos Previos
 
-### Análisis Comparativo de Servidores Web
+- **Docker & Docker Compose** (v20+)
+  ```bash
+  docker --version
+  docker-compose --version
+  ```
 
-| Aspecto | Apache | Nginx | IIS |
-|---|---|---|---|
-| **SO Principal** | Linux/Unix | Linux/Unix | Windows |
-| **Modelo Procesamiento** | Multi-proceso/MPM | Event-driven (asincrónico) | Async native |
-| **Rendimiento** | Bueno | Excelente (↑ concurrencia) | Muy bueno |
-| **Costo Licencia** | Gratis | Gratis | $$$$ (license Windows) |
-| **Costo Infraestructura** | Requiere + RAM | Bajo consumo recursos | Alto |
-| **Módulos Dinámicos** | Extensos (mod_php, etc) | Limitados, proxy to upstream |
-| **Configuración** | Compleja | Simple, clara |
-| **Comunidad** | Muy grande | Muy grande | Buena |
-| **Seguridad** | Excelente | Excelente | Excelente |
+- **Node.js** (v18+) - si ejecutas sin Docker
+  ```bash
+  node --version
+  ```
 
-### **Recomendación: NGINX + PHP-FPM**
-
-#### **Justificación para la Tienda**
-
-1. **Rendimiento Superior**
-   - Modelo event-driven permite manejar miles de conexiones simultáneas
-   - Costo computacional mínimo por conexión
-   - La tienda podrá tener picos de tráfico sin colapsar
-
-2. **Costo Operativo**
-   - Software libre y de código abierto
-   - Bajo consumo de memoria RAM (crítico para presupuestos pequeños)
-   - Hospedaje en servidor Linux estándar (más económico que Windows)
-
-3. **Escalabilidad**
-   - Fácil de escalar horizontalmente
-   - Excelente como reverse proxy y load balancer
-   - Si crece el negocio, se puede migrar a múltiples servidores
-
-4. **Configuración Simple**
-   - Archivos de configuración claros y legibles
-   - Menos "magia negra" que Apache
-   - Facilita debugging y mantenimiento
-
-5. **Stack Moderno**
-   ```
-   LEMP Stack:
-   - Linux (Debian/Ubuntu)
-   - Nginx (Servidor web)
-   - MySQL/MariaDB (Base de datos)
-   - PHP 8.x o Python/Node.js (Lógica aplicación)
-   ```
-
-#### **Por qué NO Apache para este caso**
-- Consumiría demasiados recursos en los primeros picos de tráfico
-- Cada conexión = proceso separado (costoso en memoria)
-
-#### **Por qué NO IIS**
-- Costo de licencias Windows muy alto para PYME
-- Complejidad innecesaria para una tienda que empieza
-- Portabilidad reducida
+- **Git**
+  ```bash
+  git --version
+  ```
 
 ---
 
-## 4. FUNCIONAMIENTO DEL PROTOCOLO HTTP (2/2 puntos)
+## ⚡ Inicio Rápido (5 min)
 
-### Flujo Completo de una Petición HTTP
+### Opción 1: Con Docker (RECOMENDADO)
 
-```
-NAVEGADOR CLIENTE                        SERVIDOR NGINX
-     │                                         │
-     │  1. Usuario hace clic en producto     │
-     │     (ej: /producto/zapatos-azules)    │
-     │                                         │
-     ├─────────────── 2. DNS resolver ─────────┤
-     │    (traduce ejemplo.com → 192.168.1.5) │
-     │                                         │
-     ├──────── 3. TCP Handshake ──────────────┤
-     │    (SYN → SYN-ACK → ACK)              │
-     │                                         │
-     ├──── 4. HTTP REQUEST (TLS/SSL opcional) ──────┐
-     │  GET /producto/zapatos-azules HTTP/1.1      │
-     │  Host: ejemplo.com                           │
-     │  User-Agent: Mozilla/5.0                     │
-     │  Accept: text/html,application/json         │
-     │  Cookies: session=abc123                     │
-     │                                              ├──→ 5. Nginx recibe petición
-     │                                              │
-     │                                              ├──→ 6. Enruta a PHP-FPM
-     │                                              │    (fastcgi_pass 127.0.0.1:9000)
-     │                                              │
-     │                                              ├──→ 7. PHP ejecuta:
-     │                                              │    - Valida sesión usuario
-     │                                              │    - Query: SELECT * FROM 
-     │                                              │      productos WHERE id=123
-     │                                              │
-     │                                              ├──→ 8. MySQL retorna datos
-     │                                              │
-     │                                              ├──→ 9. PHP genera HTML
-     │                                              │    con datos del producto
-     │                                              │
-     │◄──── 10. HTTP RESPONSE ────────────────────┤
-     │  HTTP/1.1 200 OK                           │
-     │  Content-Type: text/html; charset=utf-8   │
-     │  Content-Length: 4521                      │
-     │  Cache-Control: max-age=3600              │
-     │  Set-Cookie: session=abc123...            │
-     │                                            │
-     │  <!DOCTYPE html>                          │
-     │  <html>...</html>                         │
-     │                                            │
-     ├─ 11. Navegador renderiza HTML            │
-     ├─ 12. Descarga CSS, JS, imágenes           │
-     │      (múltiples peticiones GET)           │
-     ├─ 13. Ejecuta JavaScript                   │
-     ├─ 14. Muestra página al usuario            │
-     │                                            │
-```
-
-### **Explicación Detallada**
-
-#### **Paso 1-3: Establecimiento de Conexión**
-```
-1. Resolución DNS: ejemplo.com → 192.168.1.100
-2. Three-way Handshake TCP:
-   Cliente → Servidor: SYN (¿Estás ahí?)
-   Servidor → Cliente: SYN-ACK (Sí, estoy aquí)
-   Cliente → Servidor: ACK (Conectado)
-```
-
-#### **Paso 4: Petición HTTP**
-```
-GET /api/productos HTTP/1.1
-Host: ejemplo.com
-Content-Type: application/json
-Authorization: Bearer token_123
-User-Agent: Mozilla/5.0
-
-```
-
-**Métodos HTTP comunes:**
-- `GET`: Solicitar datos
-- `POST`: Enviar datos (compra, login)
-- `PUT/PATCH`: Actualizar
-- `DELETE`: Eliminar
-
-#### **Paso 5-9: Procesamiento en Servidor**
-
-1. **Nginx recibe petición**
-   - Analiza headers y URL
-   - Decide si es contenido estático o dinámico
-
-2. **Enrutamiento a PHP-FPM**
-   - Nginx NO ejecuta PHP directamente (a diferencia de Apache)
-   - Usa protocolo FastCGI para comunicarse con proceso PHP
-   - Esto permite mejor manejo de concurrencia
-
-3. **PHP Ejecuta Código**
-   - Valida autenticación del usuario
-   - Conecta a base de datos MySQL
-   - Ejecuta queries (ej: SELECT de productos)
-   - Pasa datos a template HTML
-
-4. **MySQL Retorna Datos**
-   - Búsqueda eficiente mediante índices
-   - Compresión de datos si es gran volumen
-
-#### **Paso 10: Respuesta HTTP**
-```
-HTTP/1.1 200 OK
-Content-Type: text/html; charset=utf-8
-Content-Length: 4521
-Cache-Control: max-age=3600
-Set-Cookie: session_id=xyz789; Path=/; HttpOnly
-Connection: keep-alive
-
-<html>
-  <head><title>Zapatos Azules</title></head>
-  <body>...</body>
-</html>
-```
-
-**Códigos HTTP importantes para la tienda:**
-- `200 OK`: Petición exitosa
-- `301/302 REDIRECT`: Redireccionar (ej: http → https)
-- `400 BAD REQUEST`: Datos inválidos
-- `401 UNAUTHORIZED`: Usuario no autenticado
-- `403 FORBIDDEN`: Acceso denegado
-- `404 NOT FOUND`: Producto no existe
-- `500 SERVER ERROR`: Error interno del servidor
-
-#### **Paso 11-14: Renderizado en Navegador**
-- Navegador interpreta HTML
-- Descarga recursos adicionales: CSS, JavaScript, imágenes
-- Cada recurso = petición HTTP adicional
-- Ejecución de JS para interactividad (carrito, filtros)
-
----
-
-## 5. SEGURIDAD Y MANTENIMIENTO (1/1 punto)
-
-### Buenas Prácticas para Nginx
-
-#### **5.1 Seguridad**
-
-##### **A. HTTPS con Certificado SSL/TLS**
 ```bash
-# Usar Let's Encrypt (GRATIS)
-sudo apt install certbot python3-certbot-nginx
-sudo certbot certonly --nginx -d ejemplo.com -d www.ejemplo.com
+# 1. Clonar repositorio
+git clone https://github.com/tu-usuario/Proyecto-WebStack.git
+cd Proyecto-WebStack
 
-# Configurar Nginx para usar HTTPS
-listen 443 ssl http2;
-ssl_certificate /etc/letsencrypt/live/ejemplo.com/fullchain.pem;
-ssl_certificate_key /etc/letsencrypt/live/ejemplo.com/privkey.pem;
+# 2. Iniciar todos los servicios
+docker-compose up -d
 
-# Renovación automática
-sudo systemctl enable certbot.timer
+# 3. Verificar que todo está running
+docker-compose ps
+
+# 4. Esperar ~30 segundos y acceder:
+# Frontend:  http://localhost:3000
+# Admin:     http://localhost:1337/admin (Strapi)
+# APIs:      http://localhost:5000/api/v1/* (Gateway)
+
+# 5. Ver logs
+docker-compose logs -f
 ```
 
-##### **B. Headers de Seguridad**
-```nginx
-# Prevenir clickjacking
-add_header X-Frame-Options "SAMEORIGIN" always;
+### Opción 2: Sin Docker (desarrollo local)
 
-# Prevenir MIME type sniffing
-add_header X-Content-Type-Options "nosniff" always;
-
-# Habilitar XSS protection
-add_header X-XSS-Protection "1; mode=block" always;
-
-# Control de acceso
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-```
-
-##### **C. Firewall y Control de Acceso**
 ```bash
-# Usar UFW (Uncomplicated Firewall)
-sudo ufw allow 22/tcp      # SSH
-sudo ufw allow 80/tcp      # HTTP
-sudo ufw allow 443/tcp     # HTTPS
-sudo ufw enable
+# Backend - API Gateway
+cd microservices/api-gateway
+npm install
+npm start  # corre en puerto 5000
+
+# Frontend (otra terminal)
+cd frontend
+npm install
+npm run dev  # corre en puerto 3000
+
+# Strapi (otra terminal)
+cd microservices/strapi-cms
+npm install --legacy-peer-deps
+npm run dev  # corre en puerto 1337
 ```
 
-##### **D. Validación de Datos**
-```php
-// En el código PHP de la tienda
-$product_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-if (!$product_id) {
-    http_response_code(400);
-    exit('ID de producto inválido');
-}
-
-// Usar prepared statements para evitar SQL Injection
-$stmt = $pdo->prepare('SELECT * FROM productos WHERE id = ?');
-$stmt->execute([$product_id]);
-```
-
-##### **E. Autenticación Segura**
-- Hash de contraseñas con `bcrypt` o `argon2`
-- Sessions con `HttpOnly` y `Secure` flags
-- Rate limiting para evitar fuerza bruta
-
-#### **5.2 Mantenimiento Preventivo**
-
-##### **A. Actualizaciones Automáticas**
-```bash
-# Habilitar actualizaciones automáticas de seguridad
-sudo apt install unattended-upgrades
-sudo dpkg-reconfigure -plow unattended-upgrades
-
-# Verificar que esté activo
-sudo systemctl status unattended-upgrades
-```
-
-##### **B. Monitoreo y Logs**
-```bash
-# Revisar logs de Nginx
-tail -f /var/log/nginx/access.log
-tail -f /var/log/nginx/error.log
-
-# Monitoreo de sistema
-sudo apt install htop
-htop  # Monitor procesos en tiempo real
-
-# Alertas de errores
-sudo apt install fail2ban  # Previene ataques de fuerza bruta
-```
-
-##### **C. Copias de Seguridad**
-```bash
-# Script backup diario
-#!/bin/bash
-BACKUP_DATE=$(date +%Y%m%d_%H%M%S)
-tar -czf /backup/web_$BACKUP_DATE.tar.gz /var/www/tienda/
-mysqldump -u root -p tienda_db > /backup/db_$BACKUP_DATE.sql
-
-# Guardar en servidor remoto
-scp -r /backup/ usuario@servidor-backup:/backups/
-```
-
-##### **D. Checklist de Mantenimiento Mensual**
-
-```
-□ Revisar logs de acceso y errores
-□ Ejecutar actualizaciones de seguridad
-□ Verificar integridad de backups
-□ Analizar uso de recursos (CPU, RAM, disco)
-□ Revisar certificados SSL (próxima renovación)
-□ Testear procesos de recovery de backups
-□ Auditoría de usuarios y permisos
-□ Monitoreo de seguridad (archivo modificado, permisos)
-□ Performance tuning si es necesario
-```
+**Nota:** Requiere MySQL corriendo localmente en puerto 3306
 
 ---
 
-## 6. DIAGRAMA DEL FLUJO HTTP
-
-### Diagrama Completo del Ciclo de Vida de una Petición
-
-```mermaid
-graph TD
-    A["👤 Usuario en navegador<br/>(Cliente)"] -->|1. Hace clic en producto| B["🔍 Navegador resuelve DNS<br/>ejemplo.com → 192.168.1.100"]
-    B -->|2. Crea conexión TCP| C["🤝 Three-way Handshake"]
-    C -->|3. Conexión establecida| D["📤 Envía petición HTTP GET<br/>/producto/zapatos-azules"]
-    D -->|4. Llega a puerto 80/443| E["🖥️ Servidor Nginx<br/>recibe petición"]
-    E -->|5. Analiza URL y headers| F{"¿Contenido<br/>estático?"}
-    F -->|Sí| G["📁 Retorna archivo<br/>CSS/JS/IMG"]
-    F -->|No| H["🚀 Enruta a PHP-FPM<br/>FastCGI unix socket"]
-    H -->|6. PHP ejecuta código| I["🔐 Valida sesión<br/>y autenticación"]
-    I -->|7. Conecta a BD| J["🗄️ MySQL<br/>SELECT producto"]
-    J -->|Retorna datos| K["📝 PHP genera HTML<br/>dinámico"]
-    K -->|8. HTML + headers| L["📥 Nginx retorna<br/>HTTP Response 200 OK"]
-    G -->|Respuesta| L
-    L -->|9. Recibe en protocolo| M["🌐 Navegador recibe<br/>HTML + headers"]
-    M -->|10. Procesa HTML| N["🎨 Renderiza página<br/>interpreta CSS"]
-    N -->|11. Descarga recursos| O["📊 JavaScript<br/>interactivo"]
-    O -->|12. Muestra al usuario| P["✅ Usuario ve<br/>catálogo interactivo"]
-    
-    style A fill:#e1f5ff
-    style E fill:#fff3e0
-    style J fill:#f3e5f5
-    style P fill:#e8f5e9
-```
-
----
-
-## RESUMEN EJECUTIVO
-
-### Recomendaciones Finales para la Tienda
-
-| Aspecto | Decisión | Justificación |
-|---|---|---|
-| **Arquitectura** | **Cliente-Servidor LAMP modificado** | Modelo escalable y confiable para comercio electrónico |
-| **Tipología** | **Sitio Dinámico** | Catálogo interactivo, usuarios, pedidos requieren BD |
-| **Servidor Web** | **Nginx + PHP-FPM** | Mejor relación rendimiento/costo, manejo de concurrencia |
-| **Seguridad** | **HTTPS con Let's Encrypt + Headers HTTP** | Protege datos de clientes en transacciones |
-| **Mantenimiento** | **Actualizaciones automáticas + Backups diarios** | Prevención de ataques, recuperación ante fallos |
-
-### Inversión Estimada (Primer Año)
-
-- **Hosting Linux**: $50-100/mes (Nginx + 2GB RAM)
-- **Dominio**: $10-15/año
-- **SSL (Let's Encrypt)**: GRATIS
-- **Base de datos MySQL**: INCLUIDA en hosting
-- **Desarrollo PHP**: Depende de desarrollador freelancer
-- **Backups automáticos**: Incluido en hosting
-- **Total aprox:** $600-1,500 USD primer año
-
-### Próximos Pasos
-
-1. Contratar hosting con soporte para Nginx
-2. Registrar dominio + SSL
-3. Desarrollar sitio con PHP moderno (Laravel o Symfony)
-4. Implementar pasarela de pago (Stripe, PayPal)
-5. Copias de seguridad automáticas a servidor remoto
-6. Monitoreo 24/7 de uptime y errores
-
----
-
-**Documento elaborado por**: Administrador de Sistemas  
-**Fecha**: 2026-03-03  
-**Versión**: 1.0
-
----
-
-# 🚀 PROYECTO FUNCIONAL - TIENDA ONLINE
-
-Este proyecto es una **aplicación web funcional completamente** basada en el análisis técnico anterior. Implementa todos los conceptos de arquitectura cliente-servidor, seguridad y mejores prácticas.
-
-## 📋 Contenido del Repositorio
+## 📁 Estructura del Proyecto
 
 ```
 Proyecto-WebStack/
-├── README.md                # Este archivo - Documentación técnica
-├── INSTALACION.md          # Guía paso a paso para instalar
-├── SEGURIDAD.md            # Medidas de seguridad implementadas
-├── ARQUITECTURA.md         # Diagramas y decisiones de diseño
 │
-├── app/                    # Aplicación Principal
-│   ├── public/
-│   │   ├── index.php      # 🎯 PUNTO DE ENTRADA - Enrutador principal
-│   │   ├── css/style.css  # Estilos responsivos
-│   │   └── js/main.js     # JavaScript funcional
+├── 📚 Documentación
+│   ├── README.md                    # Este archivo
+│   ├── STRAPI-QUICK-START.md        # Guía rápida para usar Strapi
+│   ├── STRAPI-SETUP.md              # Configuración detallada de Strapi
+│   ├── VERCEL-DEPLOYMENT.md         # Deployment a producción
+│   └── API-REFERENCE.md             # Endpoints de APIs
+│
+├── 🏗️ Microservicios
+│   ├── api-gateway/                 # Router central (Express + Axios)
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   └── package.json
 │   │
+│   ├── auth-service/                # Autenticación JWT (Express + bcrypt)
+│   │   ├── routes/auth.js
+│   │   ├── lib/
+│   │   └── package.json
+│   │
+│   ├── product-service/             # Catálogo (Express + MySQL)
+│   │   ├── routes/products.js
+│   │   ├── controllers/
+│   │   └── package.json
+│   │
+│   ├── order-service/               # Órdenes (Express + MySQL)
+│   │   ├── routes/orders.js
+│   │   ├── controllers/
+│   │   └── package.json
+│   │
+│   └── strapi-cms/                  # CMS (Strapi 4 + MySQL)
+│       ├── config/                  # Configuración de servidor y DB
+│       ├── src/                     # Bootstrap y extensiones
+│       ├── package.json
+│       ├── Dockerfile
+│       └── .env.example
+│
+├── 🎨 Frontend
 │   ├── src/
-│   │   ├── config/        # Configuración
-│   │   │   ├── Database.php  # Conexión a MySQL (Singleton)
-│   │   │   └── Config.php    # Constantes globales
-│   │   │
-│   │   └── classes/       # Lógica de Negocio
-│   │       ├── User.php       # Autenticación y usuarios
-│   │       ├── Product.php    # Catálogo de productos
-│   │       ├── Cart.php       # Carrito de compras
-│   │       ├── Session.php    # Gestión de sesiones
-│   │       └── Security.php   # Validaciones y seguridad
+│   │   ├── components/              # React components
+│   │   ├── pages/                   # Rutas principales
+│   │   ├── api/                     # Clientes HTTP (axios)
+│   │   ├── stores/                  # Estado global (Zustand)
+│   │   ├── App.jsx
+│   │   └── main.jsx
 │   │
-│   └── views/             # Templates HTML
-│       ├── layouts/       # Header y Footer
-│       ├── index.php      # Catálogo
-│       ├── producto.php   # Detalle de producto
-│       ├── carrito.php    # Carrito de compras
-│       ├── login.php      # Autenticación
-│       ├── registro.php   # Registro de usuarios
-│       ├── search.php     # Resultados de búsqueda
-│       ├── category.php   # Filtrado por categoría
-│       └── 404.php        # Página no encontrada
+│   ├── index.html
+│   ├── vite.config.js               # Configuración Vite
+│   ├── package.json
+│   └── Dockerfile
 │
-├── docker/                # Configuración Docker
-│   ├── Dockerfile         # Imagen PHP 8.2-FPM
-│   └── nginx.conf         # Configuración del servidor web
+├── 🗄️ Base de Datos
+│   ├── docker-compose.yml           # Orquestación de servicios
+│   ├── 01-init.sql                  # Inicialización tienda_db
+│   ├── 02-sample-data.sql           # Datos de ejemplo
+│   └── 03-strapi-init.sql           # Inicialización strapi_db
 │
-├── database/
-│   └── init.sql          # Schema inicial con datos de prueba
-│
-├── scripts/               # Utilidades
-│   ├── start.sh          # 🚀 Iniciar aplicación
-│   ├── stop.sh           # ⏹️ Detener aplicación
-│   ├── backup.sh         # 💾 Backup de BD
-│   ├── restore.sh        # 📥 Restaurar desde backup
-│   ├── security-check.sh # 🔒 Verificación de seguridad
-│   └── permissions.sh    # 🔑 Configurar permisos
-│
-├── docker-compose.yml     # Orquestación de contenedores
-├── .gitignore            # Archivos a ignorar
-└── .env.example          # Variables de environment
+└── 🐳 Docker
+    └── docker-compose.yml           # Archivo principal (MySQL, todas las APIs, frontend, Strapi)
 ```
 
-## 🎯 Características Implementadas
+**Detalles por servicio:**
 
-### ✅ Catálogo de Productos
-- Listado con paginación
-- Búsqueda fulltext en tiempo real
-- Filtrado por categoría
-- Vista detallada con imágenes
-- Stock disponible
-
-### ✅ Carrito de Compras
-- Agregar/remover artículos
-- Actualizar cantidades
-- Cálculo automático de totales
-- Resumen de compra
-- Validación de stock
-
-### ✅ Autenticación y Usuarios
-- Registro con validación de email
-- Login seguro con bcrypt
-- Perfiles (Cliente/Admin)
-- Recuperación de sesión
-- Logout seguro
-
-### ✅ Seguridad
-- ✓ Hash bcrypt para contraseñas (costo 12)
-- ✓ Validación CSRF en formularios
-- ✓ Protección XSS (escape de output)
-- ✓ SQL Injection prevention (prepared statements)
-- ✓ Headers HTTP seguros
-- ✓ HTTPS ready (con certificado)
-- ✓ Rate limiting ready
-- ✓ Auditoría de acciones
-
-### ✅ Base de Datos
-- 8 tablas relacionales
-- Índices para performance
-- Búsqueda fulltext
-- Integridad referencial
-- Datos de prueba incluidos
-
-### ✅ Arquitectura
-- MVC (Model-View-Controller)
-- Patrón Singleton para BD
-- Separación de responsabilidades
-- Code reusability
-- Fácil de escalar
-
-## 🚀 Inicio Rápido
-
-### 1. Clonar/Descargar
-```bash
-cd /workspaces/Proyecto-WebStack
+### API Gateway (Puerto 5000)
+```
+POST   /api/v1/auth/login           → auth-service
+POST   /api/v1/auth/register        → auth-service
+GET    /api/v1/products             → product-service
+POST   /api/v1/orders               → order-service
+POST   /api/v1/webhooks/products    ← Strapi (cuando cambia contenido)
 ```
 
-### 2. Iniciar
-```bash
-chmod +x scripts/*.sh
-./scripts/start.sh
+### Auth Service (Puerto 5001)
+```
+POST   /register                     (crear usuario)
+POST   /login                        (obtener JWT)
+POST   /verify                       (validar token)
 ```
 
-### 3. Acceder
+### Product Service (Puerto 5002)
 ```
-http://localhost
-```
-
-### 4. Credenciales de Prueba
-- **Admin**: admin@tienda.local / Tienda123456
-- **Cliente**: demo@tienda.local / Tienda123456
-
-## 📚 Documentación
-
-- **[INSTALACION.md](INSTALACION.md)** - Guía completa de instalación y uso
-- **[SEGURIDAD.md](SEGURIDAD.md)** - Medidas de seguridad implementadas
-- **[ARQUITECTURA.md](ARQUITECTURA.md)** - Diagramas técnicos y decisiones de diseño
-
-## 🏗️ Stack Tecnológico
-
-| Componente | Tecnología | Versión |
-|---|---|---|
-| **Servidor Web** | Nginx | 1.24 (Alpine) |
-| **Backend** | PHP | 8.2-FPM |
-| **Base de Datos** | MySQL | 8.0 |
-| **Contenedor** | Docker | Compose |
-| **Frontend** | HTML5/CSS3/JavaScript | Vanilla |
-| **Protocolo** | HTTP/HTTPS | TLS 1.2+ |
-
-## 📊 Diagrama de Flujo HTTP
-
-```mermaid
-graph LR
-    A["Cliente<br/>(Navegador)"] 
-    B["Nginx<br/>(Reverse Proxy)"]
-    C["PHP-FPM<br/>(Aplicación)"]
-    D["MySQL<br/>(Base de Datos)"]
-    
-    A -->|HTTP/HTTPS| B
-    B -->|FastCGI| C
-    C -->|Query| D
-    D -->|Resultado| C
-    C -->|HTML| B
-    B -->|Response| A
-    
-    style A fill:#e1f5ff
-    style B fill:#fff3e0
-    style C fill:#f3e5f5
-    style D fill:#e8f5e9
+GET    /                             (listar productos)
+GET    /:id                          (obtener por ID)
+POST   /                             (admin: crear)
+PUT    /:id                          (admin: actualizar)
+DELETE /:id                          (admin: eliminar)
 ```
 
-## 🔒 Seguridad
+### Order Service (Puerto 5003)
+```
+GET    /                             (mis órdenes)
+GET    /:id                          (obtener orden)
+POST   /                             (crear nueva orden)
+PUT    /:id                          (actualizar estado)
+DELETE /:id                          (cancelar orden)
+```
 
-Como se menciona en el análisis anterior, esta aplicación implementa **todas las medidas de seguridad** recomendadas:
+### Strapi CMS (Puerto 1337)
+```
+Admin Panel:       http://localhost:1337/admin
+REST API:          http://localhost:1337/api/*
+GraphQL:           http://localhost:1337/graphql
+```
 
-1. **Autenticación**: Bcrypt con costo 12
-2. **SQL Injection**: Prepared statements
-3. **XSS**: Output escaping
-4. **CSRF**: Token validation
-5. **HTTPS**: TLS 1.2+
-6. **Rate Limiting**: Ready para implementar
-7. **Auditoría**: Logger de acciones
-8. **Session**: Seguridad avanzada
+### Frontend (Puerto 3000)
+```
+Home:              http://localhost:3000
+Productos:         http://localhost:3000/productos
+Carrito:           http://localhost:3000/carrito
+Órdenes:           http://localhost:3000/ordenes
+```
 
-## 🧪 Testing
+---
 
-### Flujo de Compra Completo
+## 📚 Documentación Detallada
 
-1. Acceder a http://localhost
-2. Ver catálogo de productos
-3. Buscar o filtrar por categoría
-4. Hacer clic en un producto
-5. Agregar al carrito
-6. Registrarse o login
-7. Ver carrito
-8. Completar compra
+### 1. Guía Rápida de Strapi (5 min)
+➜ [STRAPI-QUICK-START.md](STRAPI-QUICK-START.md)
 
-### Pruebas de Seguridad
+Incluye:
+- Cómo crear content types
+- Crear contenido en admin
+- Consumir API desde React
+- Permisos públicos
+- Troubleshooting básico
+
+### 2. Setup Completo de Strapi
+➜ [STRAPI-SETUP.md](STRAPI-SETUP.md)
+
+Incluye:
+- Arquitectura de Strapi
+- Configuración detallada
+- Integración frontend (full)
+- REST API reference
+- GraphQL patterns
+- Webhooks
+- Media management
+- Producción
+
+### 3. Deployment a Producción
+➜ [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md)
+
+Incluye:
+- 3 arquitecturas diferentes ($, $$, $$$)
+- Deployment paso a paso
+- Vercel + Railway
+- AWS RDS setup
+- CI/CD con GitHub Actions
+- Monitoreo
+- Timeline de 4 semanas
+- Análisis de costos
+
+### 4. Referencia de APIs
+➜ [API-REFERENCE.md](API-REFERENCE.md)
+
+Incluye:
+- Todos los endpoints
+- Parámetros y respuestas
+- Ejemplos con curl
+- Status codes
+- Errores comunes
+
+---
+
+## 🛠️ Comandos Útiles
+
+### Docker Compose
 
 ```bash
-# Ejecutar verificación de seguridad
-./scripts/security-check.sh
-
-# Ver logs
-docker-compose logs -f php
-docker-compose logs -f nginx
-```
-
-## 📈 Performance
-
-- **Nginx**: Manejo de miles de conexiones simultáneas
-- **PHP-FPM**: Procesamiento rápido sin bloqueos
-- **MySQL**: Índices optimizados
-- **Gzip**: Compresión de respuestas
-- **Caché**: Headers HTTP adecuados
-
-Tiempo de respuesta típico:
-- Página principal: < 100ms
-- Búsqueda: < 200ms
-- Detalle de producto: < 80ms
-
-## 🔧 Desarrollo
-
-### Agregar Nueva Funcionalidad
-
-1. **Crear Clase** (si es lógica)
-```php
-// app/src/classes/MyFeature.php
-namespace App\Classes;
-class MyFeature { ... }
-```
-
-2. **Crear Vista** (si es página)
-```php
-// app/views/mypage.php
-<h1>My Feature</h1>
-```
-
-3. **Agregar Ruta** (en index.php)
-```php
-elseif ($request_uri === '/mypage') {
-    require __DIR__ . '/../views/mypage.php';
-}
-```
-
-## 🐳 Docker Commands
-
-```bash
-# Iniciar servicios
+# Iniciar todos los servicios
 docker-compose up -d
 
-# Ver logs en tiempo real
+# Ver estado
+docker-compose ps
+
+# Ver logs de un servicio
+docker-compose logs -f api-gateway
+docker-compose logs -f strapi-cms
+docker-compose logs -f frontend
+
+# Ver logs todos los servicios
 docker-compose logs -f
-
-# Acceder a contenedor PHP
-docker-compose exec php bash
-
-# Acceder a MySQL
-docker-compose exec db mysql -u tienda_user -ptienda_pass123 tienda_db
 
 # Detener servicios
 docker-compose down
 
 # Reconstruir imágenes
-docker-compose build --no-cache
+docker-compose up -d --build
+
+# Ver redes
+docker network ls
+docker network inspect proyecto-webstack_default
+
+# Ver volúmenes
+docker volume ls
+docker volume inspect proyecto-webstack_mysql_data
 ```
 
-## 📱 Responsive
+### Base de Datos
 
-La aplicación es completamente responsive:
-- ✓ Desktop (1280px+)
-- ✓ Tablets (768px - 1279px)
-- ✓ Móvil (320px - 767px)
+```bash
+# Acceder a MySQL
+docker exec -it proyecto-webstack_mysql_1 mysql -u root -proot
 
-## 🌐 Navegadores Soportados
+# Dentro de MySQL:
+SHOW DATABASES;
+USE tienda_db;
+DESCRIBE usuarios;
+DESCRIBE productos;
 
-- Chrome/Chromium 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-- Mobile browsers
+# Reset de DB (cuidado, borra todo)
+docker-compose down -v
+docker-compose up -d
+```
 
-## 🚀 Deployment en Producción
+### Frontend
 
-Ver [INSTALACION.md - Configuración para Producción](INSTALACION.md#configuración-para-producción)
+```bash
+# Desarrollo con Vite
+npm run dev       # Hot reload en http://localhost:3000
 
-Checklist:
-- [ ] Instalar HTTPS (Let's Encrypt)
-- [ ] Cambiar contraseñas
-- [ ] Configurar backups automáticos
-- [ ] Habilitar firewall
-- [ ] Monitoreo 24/7
-- [ ] Rate limiting
-- [ ] WAF (opcional)
+# Build para producción
+npm run build
 
-## 📞 Soporte
+# Previsualizar build
+npm run preview
 
-Para problemas:
-1. Ver [INSTALACION.md - Problemas Comunes](INSTALACION.md#problemas-comunes)
-2. Revisar logs: `docker-compose logs`
-3. Verificar seguridad: `./scripts/security-check.sh`
+# Lintear código
+npm run lint
 
-## 📄 Licencia
+# Test (si está configurado)
+npm run test
+```
 
-Proyecto educativo para demostración de:
-- Consultoría técnica
-- Administración de sistemas
-- Arquitectura web
-- Seguridad de aplicaciones
+### Strapi
 
-## 📖 Referencias
+```bash
+# Desarrollo local (sin Docker)
+npm run dev
 
-- [Análisis Arquitectónico](README.md#1-análisis-de-arquitectura) - Secciones 1-5
-- [Documentación Técnica Completa](ARQUITECTURA.md)
-- [Guía de Seguridad](SEGURIDAD.md)
+# Build
+npm run build
+
+# Start producción
+npm start
+
+# Crear plugin
+npx strapi generate
+```
+
+### Microservicios (Backend)
+
+```bash
+# Instalar dependencias
+npm install --legacy-peer-deps
+
+# Desarrollo
+npm run dev
+
+# Producción
+npm start
+
+# Linting
+npm run lint
+```
 
 ---
 
-**Proyecto de Consultoría Técnica**  
-📅 Marzo 2026  
-🎯 Puntuación Esperada: 10/10
+## 🚀 Deployment
 
-### Requisitos Cumplidos
+### Quick Start: Vercel + Railway + Strapi Cloud
 
-| Requisito | Puntos | Estado | Descripción |
-|-----------|--------|--------|-------------|
-| Análisis de Arquitectura | 2/2 | ✅ | Modelo client-server completo con diagramas |
-| Tipología de Web | 3/3 | ✅ | Justificación clara de sitio dinámico |
-| Selección Tecnológica | 2/2 | ✅ | Nginx vs Apache vs IIS con justificación |
-| Funcionamiento HTTP | 2/2 | ✅ | Flujo completo de petición con diagrama |
-| Seguridad y Mantenimiento | 1/1 | ✅ | Prácticas, backups, actualizaciones |
-| **TOTAL** | **10/10** | ✅ | Proyecto funcional completo |
+1. **Frontend a Vercel** (5 min)
+   ```bash
+   npm i -g vercel
+   vercel login
+   cd frontend
+   vercel
+   ```
+   → https://mi-app.vercel.app
+
+2. **APIs a Railway** (10 min)
+   ```bash
+   # En Railway: nueva app de Docker
+   # Conectar repo GitHub → auto-deploy
+   ```
+   → https://api.railway.app
+
+3. **CMS a Strapi Cloud** (5 min)
+   ```bash
+   # En Strapi.io: crear proyecto
+   # Conectar DB (MongoDB Atlas)
+   # Deploy automático
+   ```
+   → https://cms.strapi.app
+
+### Documentación Completa
+➜ [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md)
+
+---
+
+## 🔐 Variables de Entorno
+
+### Frontend (.env.local)
+```
+VITE_API_URL=http://localhost:5000
+VITE_CMS_URL=http://localhost:1337
+```
+
+### API Gateway (.env)
+```
+PORT=5000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+AUTH_SERVICE_URL=http://auth-service:5001
+PRODUCT_SERVICE_URL=http://product-service:5002
+ORDER_SERVICE_URL=http://order-service:5003
+CMS_URL=http://strapi-cms:1337
+```
+
+### Auth Service (.env)
+```
+PORT=5001
+DATABASE_HOST=mysql
+DATABASE_USER=root
+DATABASE_PASSWORD=root
+DATABASE_NAME=tienda_db
+JWT_SECRET=tu_secret_muy_largo_aqui
+```
+
+### Strapi (.env)
+```
+DATABASE_HOST=mysql
+DATABASE_NAME=strapi_db
+DATABASE_USER=strapi_user
+DATABASE_PASSWORD=strapi_pass
+HOST=0.0.0.0
+PORT=1337
+ADMIN_JWT_SECRET=admin_secret_aqui
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### "connection refused" en APIs
+
+```bash
+# Verificar que MySQL está running
+docker-compose ps mysql
+
+# Ver logs MySQL
+docker-compose logs mysql
+
+# El problema suele ser que MySQL tarda en inits
+# Espera 30 segundos y reintenta
+```
+
+### Strapi no inicia
+
+```bash
+# Ver error detallado
+docker-compose logs strapi-cms
+
+# Común: database not ready
+# Solución: docker-compose down -v && docker-compose up
+
+# Puerto 1337 ocupado
+docker lsof -i :1337
+kill -9 <PID>
+```
+
+### Frontend no ve APIs
+
+```bash
+# Verificar VITE_API_URL
+cat frontend/.env.local
+
+# Verificar CORS en gateway
+curl -H "Origin: http://localhost:3000" http://localhost:5000
+
+# Cambiar en vite.config.js:
+export default {
+  server: {
+    proxy: {
+      '/api': 'http://localhost:5000'
+    }
+  }
+}
+```
+
+### Puerto ya en uso
+
+```bash
+# Listar quién usa el puerto
+lsof -i :3000
+lsof -i :5000
+lsof -i :1337
+
+# Matar proceso
+kill -9 <PID>
+
+# O cambiar puerto en docker-compose.yml
+```
+
+### Base de datos corrupta
+
+```bash
+# Nuclear option: reset completo
+docker-compose down -v
+rm -rf docker/mysql_data/*
+docker-compose up -d mysql
+# Esperar 20 segundos
+docker-compose up -d
+```
+
+---
+
+## 📊 Arquitectura
+
+```
+┌─────────────────┐
+│     VERCEL      │
+│   Frontend      │
+│   (React)       │
+└────────┬────────┘
+         │
+         │ HTTPS
+         │
+┌────────▼──────────────────────────────┐
+│         API GATEWAY (Nginx/Express)   │
+│         (Railway, Heroku, etc)        │
+└────────┬──────────────────────────────┘
+         │
+    ┌────┴────┬──────────┬──────────┐
+    │          │          │          │
+┌───▼───┐  ┌──▼──┐  ┌───▼──┐  ┌───▼────┐
+│ Auth  │  │Prod │  │Order │  │ Strapi │
+│Service│  │Serv │  │Serve │  │  CMS   │
+└───┬───┘  └──┬──┘  └───┬──┘  └───┬────┘
+    │         │         │         │
+    └─────────┴─────────┴─────────┘
+              │
+         ┌────▼─────────┐
+         │  MySQL/RDS   │
+         │ (prod DB)    │
+         └──────────────┘
+```
+
+---
+
+## 📈 Próximos Pasos
+
+- [ ] **Semana 1:** Setup local + primeros content types en Strapi
+- [ ] **Semana 2:** Integración frontend ↔ Strapi
+- [ ] **Semana 3:** Deploy frontend a Vercel
+- [ ] **Semana 4:** Deploy APIs a Railway
+- [ ] **Semana 5:** Deploy CMS a Strapi Cloud
+- [ ] **Semana 6:** CI/CD GitHub Actions
+- [ ] **Semana 7:** Monitoreo y alertas
+
+---
+
+## 🤝 Contribuir
+
+1. Fork el repo
+2. Crear rama: `git checkout -b feature/tu-feature`
+3. Commit: `git commit -am 'Add feature'`
+4. Push: `git push origin feature/tu-feature`
+5. Pull Request
+
+---
+
+## 📝 Licencia
+
+MIT - Libre para uso comercial
+
+---
+
+## 💬 Soporte
+
+- 📖 Docs: [docs.strapi.io](https://docs.strapi.io)
+- 🐛 Issues: [GitHub Issues](https://github.com/tu-usuario/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/tu-usuario/discussions)
+
+---
+
+## ✅ Checklist Inicial
+
+- [ ] Docker y Docker Compose instalados
+- [ ] Repo clonado
+- [ ] Variables de entorno configuradas
+- [ ] `docker-compose up -d` ejecutado
+- [ ] Frontend accesible en http://localhost:3000
+- [ ] Admin Strapi accesible en http://localhost:1337/admin
+- [ ] Crear primer banner en Strapi
+- [ ] Integrar en frontend
+- [ ] Tests pasando
+
+---
+
+**¡Bienvenido a WebStack! 🚀 Ahora eres parte de una arquitectura moderna, escalable y lista para producción.**
