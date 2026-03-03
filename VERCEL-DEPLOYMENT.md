@@ -315,9 +315,10 @@ DATABASE_NAME=tienda_db
 ```bash
 # Variables en Strapi
 DATABASE_CLIENT=mongo
-DATABASE_URL=mongodb+srv://user:pass@cluster.mongodb.net/strapi
+# Define tu URI en una variable de entorno, nunca la incluyas en el código.
+# Ejemplo de formato (reemplaza <usuario> y <contraseña>):
+# DATABASE_URL="mongodb+srv://<usuario>:<contraseña>@cluster.mongodb.net/strapi"
 ```
-
 ---
 
 ## 🔄 CI/CD Pipeline
