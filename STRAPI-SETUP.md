@@ -578,6 +578,109 @@ docker-compose exec strapi-cms \
 
 ---
 
+### 🛠 Avanzado y Escalabilidad
+
+#### Roles y Autenticación real
+- Aprovecha el plugin **Users & Permissions** para crear roles personalizados y políticas. En el `bootstrap` de `src/extensions/users-permissions/bootstrap.js` puedes generar roles automáticos:
+  ```js
+  const roleService = strapi.plugins['users-permissions'].services.role;
+  await roleService.create({
+    name: 'Editor',
+    type: 'editor',
+    permissions: { /* defaults o personalizadas */ }
+  });
+  ```
+- Crear colecciones `user`, `order`, `product` y relacionarlas. Usa políticas para restringir:
+  ```js
+  // ./src/policies/isOwner.js
+  module.exports = async (ctx, next) => {
+    const { id } = ctx.state.user;
+    const { data } = await strapi.entityService.findOne(
+      'api::order.order', ctx.params.id
+    );
+    if (data.attributes.user.data.id !== id) {
+      return ctx.unauthorized('No es tu pedido');
+    }
+    await next();
+  };
+  ```
+- Utiliza providers externos (Google, GitHub) configurando en Settings → Providers y ajusta los callbacks para crear permisos.
+
+#### Base de datos externa/separada
+- Edita `microservices/strapi-cms/config/database.js` para apuntar a la nueva DB (SQL Server, PostgreSQL, hosted MySQL, etc.).
+- En Kubernetes define `Secret` con credenciales y `ConfigMap` para otros valores.
+- Si migras datos de una instalación local a la externa usa `strapi export`/`strapi import` o plugins como `strapi-plugin-migrations`.
+
+#### Migración al clúster Kubernetes
+1. Construye la imagen y sube a tu registro (`docker build && docker push`).
+2. Usa los manifiestos de ejemplo que ya existen en `PRODUCTION-SETUP.md` y agrega el servicio `strapi`:
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata: { name: strapi }
+   spec:
+     replicas: 2
+     selector: { matchLabels: { app: strapi } }
+     template:
+       metadata: { labels: { app: strapi } }
+       spec:
+         containers:
+           - name: strapi
+             image: your-registry/strapi:latest
+             ports:
+               - containerPort: 1337
+             envFrom:
+               - secretRef: { name: strapi-secrets }
+             env:
+               - name: NODE_ENV
+                 value: production
+   ---
+   kind: Service
+   apiVersion: v1
+   metadata: { name: strapi }
+   spec:
+     type: ClusterIP
+     selector: { app: strapi }
+     ports:
+       - port: 1337
+         targetPort: 1337
+   ```
+3. Adjunta un `PersistentVolume`/`PVC` si necesitas conservar la carpeta `./public/uploads`.
+4. Re-aplica `kubectl apply -f k8s/` y verifica con `kubectl get pods,svc`.
+
+#### Desplegar CMS en Vercel y ajustar API Gateway
+- Vercel no es ideal para Strapi; prefiere Strapi Cloud/Heroku/Railway. Si aun así lo pones en Vercel, usa el adaptador serverless descrito más arriba y una DB externa.
+- En el API gateway, utiliza variables de entorno (`STRAPI_URL`) para apuntar a la URL pública del CMS desplegado.
+  ```js
+  const CMS_URL = process.env.STRAPI_URL || 'http://localhost:1337';
+  app.get('/api/bsome', async (req, res) => {
+    const data = await axios.get(`${CMS_URL}/api/banners`);
+    res.json(data.data);
+  });
+  ```
+
+#### Mejoras de frontend
+- Sustituye estilos de prueba por CSS/Sass/Tailwind reales. Importa desde `frontend/src/styles/*`.
+- Consume datos dinámicos de otros endpoints (`/orders`, `/user/profile`) y maneja estados con `store/index.js` (Redux o Context).
+- Agrega componentes de autenticación (login/register) usando el JWT generado por Strapi.
+
+#### Escalar con nuevos microservicios, colas, caching y monitoreo
+- **Autenticación/Órdenes:** crea servicios separados (`auth-service`, `order-service`) que expongan APIs y usen colas para procesamiento asíncrono.
+- **Colas:** RabbitMQ o Kafka; añade un contenedor en `docker-compose` o en K8s como StatefulSet. Usa paquetes como `amqplib` (Node) para publicar/consumir mensajes.
+- **Caching:** Redis para sesiones o resultados frecuentes; inserta un servicio `redis` y configura en cada microservicio. Ejemplo de cliente:
+  ```js
+  const redis = require('redis');
+  const client = redis.createClient({ url: process.env.REDIS_URL });
+  await client.connect();
+  ```
+- **Monitoreo:** Prometheus/Grafana para métricas y Jaeger para trazas. Ya hay ejemplos en este documento bajo “Deployment en Kubernetes” y “Monitoring” en `PRODUCTION-SETUP.md`.
+- **Logging centralizado:** usa Elastic Stack o Loki/Promtail.
+
+> 🧩 A medida que la aplicación crezca, prioriza: seguridad, tolerancia a fallos, escalado automático (HPA), backups de base de datos y pruebas de carga.
+
+---
+
 **Versión:** 1.0  
-**Última actualización:** 2024  
+**Última actualización:** 2026  
 **Compatibilidad:** Strapi 4.15+
+

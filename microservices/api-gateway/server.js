@@ -59,6 +59,17 @@ app.use('/api/productos', httpProxy(productServiceUrl, {
     }
 }));
 
+// STRAPI CMS (puede ser interno o URL pública)
+const strapiUrl = process.env.STRAPI_URL || `http://${process.env.STRAPI_HOST || 'strapi-cms'}:${process.env.STRAPI_PORT || 1337}`;
+app.use('/api/cms', httpProxy(strapiUrl, {
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+        // reescribe path para que Strapi reciba /api en vez de /api/cms
+        proxyReqOpts.path = srcReq.url.replace(/^\/api\/cms/, '/api');
+        return proxyReqOpts;
+    }
+}));
+
+
 // ORDER SERVICE (Puerto 5003)
 const orderServiceUrl = `http://${process.env.ORDER_SERVICE_HOST || 'order-service'}:${process.env.ORDER_SERVICE_PORT || 5003}`;
 app.use('/api/pedidos', httpProxy(orderServiceUrl, {
