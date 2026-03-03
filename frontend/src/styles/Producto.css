@@ -1,0 +1,135 @@
+.producto-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.producto-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.producto-detail .imagen {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.producto-detail img {
+  width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.producto-detail .info {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.producto-detail h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.producto-detail .categoria {
+  color: #999;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.producto-detail .descripcion {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.precio-section {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: #f0f4ff;
+  border-radius: 4px;
+  border-left: 4px solid #667eea;
+}
+
+.producto-detail .precio {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 0;
+}
+
+.producto-detail .stock {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+.producto-detail .stock strong {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.compra {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cantidad {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cantidad label {
+  font-weight: bold;
+}
+
+.cantidad input {
+  padding: 0.5rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  width: 80px;
+  font-size: 1rem;
+}
+
+.btn-agregar {
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-agregar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+  .producto-container {
+    grid-template-columns: 1fr;
+  }
+
+  .producto-detail h1 {
+    font-size: 1.5rem;
+  }
+
+  .producto-detail .precio {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,102 @@
+.navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.navbar-search {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.navbar-search input {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.navbar-search button {
+  padding: 0.5rem 1.5rem;
+  background-color: rgba(255,255,255,0.2);
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.navbar-search button:hover {
+  background-color: white;
+  color: #667eea;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.navbar-links a,
+.navbar-links button {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.navbar-links a:hover,
+.navbar-links button:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.user-name {
+  font-weight: bold;
+}
+
+.logout-btn {
+  background-color: rgba(255,100,100,0.3);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+
+.carrito-btn {
+  background-color: #ff9800;
+  font-weight: bold;
+}
+
+.carrito-btn:hover {
+  background-color: #f57c00;
+}
