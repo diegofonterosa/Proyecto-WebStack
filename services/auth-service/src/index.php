@@ -19,7 +19,7 @@ require_once __DIR__ . '/../../database/db.php';
 
 // Obtener ruta solicitada
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = str_replace('/microservices/auth-service/src', '', $path);
+$path = str_replace('/services/auth-service/src', '', $path);
 $path = str_replace('/api', '', $path);
 $method = $_SERVER['REQUEST_METHOD'];
 

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de datos compartida
   mysql:
@@ -14,9 +12,9 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
-      - ./database/03-strapi-init.sql:/docker-entrypoint-initdb.d/03-strapi-init.sql
+      - ./archive/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./archive/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - ./archive/database/03-strapi-init.sql:/docker-entrypoint-initdb.d/03-strapi-init.sql
     networks:
       - tienda-network
     healthcheck:
@@ -26,7 +24,7 @@ services:
 
   # API Gateway
   api-gateway:
-    build: ./microservices/api-gateway
+    build: ./services/api-gateway
     container_name: tienda-api-gateway
     environment:
       AUTH_SERVICE_URL: http://auth-service:5001
@@ -50,7 +48,7 @@ services:
 
   # Servicio de Autenticación
   auth-service:
-    build: ./microservices/auth-service
+    build: ./services/auth-service
     container_name: tienda-auth-service
     environment:
       DB_HOST: mysql
@@ -69,7 +67,7 @@ services:
 
   # Servicio de Productos
   product-service:
-    build: ./microservices/product-service
+    build: ./services/product-service
     container_name: tienda-product-service
     environment:
       DB_HOST: mysql
@@ -87,7 +85,7 @@ services:
 
   # Servicio de Órdenes
   order-service:
-    build: ./microservices/order-service
+    build: ./services/order-service
     container_name: tienda-order-service
     environment:
       DB_HOST: mysql
@@ -107,7 +105,7 @@ services:
   # Strapi CMS
   strapi-cms:
     build: 
-      context: ./microservices/strapi-cms
+      context: ./services/strapi-cms
       dockerfile: Dockerfile.dev
     container_name: tienda-strapi-cms
     environment:
@@ -131,7 +129,7 @@ services:
       mysql:
         condition: service_healthy
     volumes:
-      - ./microservices/strapi-cms:/app
+      - ./services/strapi-cms:/app
       - /app/node_modules
       - /app/.cache
       - strapi-uploads:/app/public/uploads
@@ -139,7 +137,7 @@ services:
 
   # Frontend React
   frontend:
-    build: ./frontend
+    build: ./archive/frontend
     container_name: tienda-frontend
     ports:
       - "3000:3000"

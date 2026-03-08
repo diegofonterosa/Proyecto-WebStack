@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/../../database/db.php';
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$path = str_replace('/microservices/product-service/src', '', $path);
+$path = str_replace('/services/product-service/src', '', $path);
 $path = str_replace('/api', '', $path);
 $method = $_SERVER['REQUEST_METHOD'];
 
