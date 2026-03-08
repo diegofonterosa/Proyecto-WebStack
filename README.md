@@ -44,6 +44,8 @@ Servicios esperados:
 
 - `GET /` renderiza `app/views/index.ejs`
 - `GET /producto/:id` renderiza `app/views/product.ejs`
+- `GET /login` renderiza `app/views/login.ejs`
+- `GET /register` renderiza `app/views/register.ejs`
 - `GET /health`
 - `GET /metrics`
 - Proxy APIs:
@@ -52,6 +54,11 @@ Servicios esperados:
   - `/api/pedidos/*` -> `order-service`
   - `/api/carrito/*` -> `order-service`
   - `/api/cms/*` -> `strapi-cms`
+
+Flujo de auth en vistas EJS:
+
+- `login.ejs` envia credenciales a `POST /api/auth/login`
+- `register.ejs` envia registro a `POST /api/auth/register`
 
 ## Notas de rutas tras la limpieza
 
