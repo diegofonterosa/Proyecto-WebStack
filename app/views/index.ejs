@@ -1,0 +1,70 @@
+<%- include('partials/header', { titulo, categorias }) %>
+
+<% const currency = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); %>
+
+<section class="hero">
+  <h1>Bienvenido a Nuestra Tienda</h1>
+  <p>Encuentra los mejores productos deportivos y de moda</p>
+</section>
+
+<section class="filters">
+  <div class="filter-group">
+    <label for="categoria-filter">Filtrar por categoria:</label>
+    <select id="categoria-filter" onchange="window.location = '/categoria?c=' + encodeURIComponent(this.value)">
+      <option value="">Todas</option>
+      <% (categorias || []).forEach((cat) => { %>
+        <option value="<%= cat %>"><%= cat %></option>
+      <% }) %>
+    </select>
+  </div>
+</section>
+
+<section class="products">
+  <h2>Catalogo</h2>
+
+  <% if (!productos || productos.length === 0) { %>
+    <div class="empty-state">
+      <p>No hay productos disponibles en este momento</p>
+    </div>
+  <% } else { %>
+    <div class="products-grid">
+      <% productos.forEach((prod) => { %>
+        <div class="product-card">
+          <div class="product-image">
+            <img src="<%= prod.imagen_url || '/images/placeholder.jpg' %>" alt="<%= prod.nombre %>">
+            <% if ((prod.stock ?? 0) <= 0) { %>
+              <div class="out-of-stock">Agotado</div>
+            <% } %>
+          </div>
+
+          <div class="product-info">
+            <h3><%= prod.nombre %></h3>
+            <p class="product-category"><%= prod.categoria || 'Sin categoria' %></p>
+            <p class="product-description"><%= (prod.descripcion || '').slice(0, 80) %>...</p>
+
+            <div class="product-footer">
+              <span class="price">$<%= currency.format(Number(prod.precio || 0)) %></span>
+              <a href="/producto/<%= prod.id %>" class="btn btn-primary">Ver Detalle</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if ((totalPages || 1) > 1) { %>
+      <div class="pagination">
+        <% if ((page || 1) > 1) { %>
+          <a href="/?page=<%= page - 1 %>" class="btn">&larr; Anterior</a>
+        <% } %>
+
+        <span class="page-info">Pagina <%= page || 1 %> de <%= totalPages %></span>
+
+        <% if ((page || 1) < totalPages) { %>
+          <a href="/?page=<%= page + 1 %>" class="btn">Siguiente &rarr;</a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

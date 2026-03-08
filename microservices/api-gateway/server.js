@@ -2,13 +2,20 @@ const express = require('express');
 const cors = require('cors');
 const httpProxy = require('express-http-proxy');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
+const viewsDir = process.env.EJS_VIEWS_DIR || path.resolve(__dirname, '../../app/views');
+const publicAssetsDir = process.env.PUBLIC_ASSETS_DIR || path.resolve(__dirname, '../../app/public');
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(publicAssetsDir));
+app.set('view engine', 'ejs');
+app.set('views', viewsDir);
 
 // Logger middleware
 app.use((req, res, next) => {
@@ -18,9 +25,22 @@ app.use((req, res, next) => {
 
 // Verificar JWT token
 const verifyToken = (req, res, next) => {
+    const isPublicPath =
+        req.path === '/' ||
+        /^\/producto\/\d+$/.test(req.path) ||
+        req.path === '/health' ||
+        req.path === '/metrics' ||
+        req.path.startsWith('/api/auth') ||
+        req.path.startsWith('/api/productos') ||
+        req.path.startsWith('/api/cms');
+
+    if (isPublicPath) {
+        return next();
+    }
+
     const token = req.headers.authorization?.split(' ')[1];
-    
-    if (!token && !req.path.includes('/auth')) {
+
+    if (!token) {
         return res.status(401).json({ error: 'Token requerido' });
     }
 
@@ -37,6 +57,97 @@ const verifyToken = (req, res, next) => {
 };
 
 app.use(verifyToken);
+
+const parseJsonResponse = (text) => {
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+};
+
+const fetchServiceJson = async (url) => {
+    const response = await fetch(url);
+    const bodyText = await response.text();
+    const json = parseJsonResponse(bodyText);
+
+    if (!response.ok || !json) {
+        throw new Error(`Error al consultar ${url} (${response.status})`);
+    }
+
+    return json;
+};
+
+// Vistas SSR (EJS)
+app.get('/', async (req, res, next) => {
+    try {
+        const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
+        const limit = 12;
+
+        const [productosResp, categoriasResp] = await Promise.all([
+            fetchServiceJson(`${productServiceUrl}/api/productos?page=${page}&limit=${limit}`),
+            fetchServiceJson(`${productServiceUrl}/api/categorias`)
+        ]);
+
+        const productos = Array.isArray(productosResp.datos) ? productosResp.datos : [];
+        const pagination = productosResp.pagination || {};
+        const totalPages = Number(pagination.pages) || 1;
+        const categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+
+        res.render('index', {
+            titulo: 'Catalogo de Productos',
+            productos,
+            categorias,
+            page,
+            totalPages
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.get('/producto/:id', async (req, res, next) => {
+    try {
+        const id = Number.parseInt(req.params.id, 10);
+        if (!Number.isFinite(id) || id <= 0) {
+            return res.status(404).render('product', { producto: null, relacionados: [], categorias: [] });
+        }
+
+        const [detalleResp, categoriasResp] = await Promise.all([
+            fetchServiceJson(`${productServiceUrl}/api/productos/${id}`),
+            fetchServiceJson(`${productServiceUrl}/api/categorias`)
+        ]);
+        const producto = detalleResp.datos || null;
+        const categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+
+        if (!producto) {
+            return res.status(404).render('product', { producto: null, relacionados: [], categorias });
+        }
+
+        let relacionados = [];
+        if (producto.categoria) {
+            const searchUrl = `${productServiceUrl}/api/productos/search?categoria=${encodeURIComponent(producto.categoria)}`;
+            const relacionadosResp = await fetchServiceJson(searchUrl);
+            relacionados = Array.isArray(relacionadosResp.datos) ? relacionadosResp.datos : [];
+        }
+
+        return res.render('product', {
+            titulo: 'Detalle de Producto',
+            producto,
+            relacionados,
+            categorias
+        });
+    } catch (error) {
+        if (error.message.includes('(404)')) {
+            return res.status(404).render('product', { producto: null, relacionados: [], categorias: [] });
+        }
+        return next(error);
+    }
+});
 
 // ============== RUTAS DE MICROSERVICIOS ==============
 

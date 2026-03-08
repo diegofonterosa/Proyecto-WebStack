@@ -33,8 +33,13 @@ services:
       PRODUCT_SERVICE_URL: http://product-service:5002
       ORDER_SERVICE_URL: http://order-service:5003
       JWT_SECRET: tu_secreto_jwt_muy_seguro_aqui
+      EJS_VIEWS_DIR: /app/views
+      PUBLIC_ASSETS_DIR: /app/public-assets
     ports:
       - "5000:5000"
+    volumes:
+      - ./app/views:/app/views:ro
+      - ./app/public:/app/public-assets:ro
     networks:
       - tienda-network
     depends_on:

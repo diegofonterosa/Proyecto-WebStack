@@ -1,0 +1,99 @@
+<%- include('partials/header', { titulo, categorias }) %>
+
+<%
+  const currency = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const get = (obj, key, methodName) => {
+    if (!obj) return null;
+    if (typeof obj[methodName] === 'function') return obj[methodName]();
+    return obj[key];
+  };
+
+  const id = get(producto, 'id', 'getId');
+  const nombre = get(producto, 'nombre', 'getNombre');
+  const categoria = get(producto, 'categoria', 'getCategoria');
+  const precio = Number(get(producto, 'precio', 'getPrecio') || 0);
+  const descripcion = get(producto, 'descripcion', 'getDescripcion') || '';
+  const imagen = get(producto, 'imagen_url', 'getImagenUrl') || '/images/placeholder.jpg';
+  const stock = Number(get(producto, 'stock', 'getStock') || 0);
+%>
+
+<% if (producto) { %>
+  <section class="producto-detalle">
+    <div class="breadcrumb">
+      <a href="/">Inicio</a> / <%= nombre %>
+    </div>
+
+    <div class="producto-container">
+      <div class="producto-imagen">
+        <img src="<%= imagen %>" alt="<%= nombre %>" class="main-image">
+      </div>
+
+      <div class="producto-datos">
+        <h1><%= nombre %></h1>
+
+        <div class="product-meta">
+          <span class="category">Categoria: <%= categoria || 'Sin categoria' %></span>
+          <span class="stock <%= stock > 0 ? 'available' : 'unavailable' %>">
+            Stock: <%= stock > 0 ? (stock + ' unidades') : 'Agotado' %>
+          </span>
+        </div>
+
+        <div class="precio">
+          <h2>$<%= currency.format(precio) %></h2>
+        </div>
+
+        <div class="descripcion">
+          <h3>Descripcion</h3>
+          <p><%= descripcion %></p>
+        </div>
+
+        <% if (stock > 0) { %>
+          <form action="/carrito/agregar" method="POST" class="form-agregar">
+            <div class="form-group">
+              <label for="cantidad">Cantidad:</label>
+              <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="<%= stock %>" required>
+            </div>
+            <input type="hidden" name="producto_id" value="<%= id %>">
+            <button type="submit" class="btn btn-success btn-large">Agregar al Carrito</button>
+          </form>
+        <% } else { %>
+          <div class="alert alert-warning">Este producto no esta disponible en este momento</div>
+        <% } %>
+
+        <div class="info-box">
+          <h3>Informacion de Compra</h3>
+          <ul>
+            <li>Envio rapido y seguro</li>
+            <li>Devolucion sin preguntas en 30 dias</li>
+            <li>Garantia de calidad</li>
+            <li>Pago seguro con encriptacion HTTPS</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <% if (Array.isArray(relacionados) && relacionados.length > 0) { %>
+    <section class="related-products">
+      <h2>Productos Similares</h2>
+      <div class="products-grid">
+        <% relacionados.slice(0, 4).forEach((prod) => { if (prod.id !== id) { %>
+          <div class="product-card">
+            <div class="product-image">
+              <img src="<%= prod.imagen_url || '/images/placeholder.jpg' %>" alt="<%= prod.nombre %>">
+            </div>
+            <div class="product-info">
+              <h3><%= prod.nombre %></h3>
+              <span class="price">$<%= currency.format(Number(prod.precio || 0)) %></span>
+              <a href="/producto/<%= prod.id %>" class="btn btn-primary btn-small">Ver</a>
+            </div>
+          </div>
+        <% } }) %>
+      </div>
+    </section>
+  <% } %>
+<% } else { %>
+  <div class="alert alert-error">Producto no encontrado</div>
+<% } %>
+
+<%- include('partials/footer') %>
