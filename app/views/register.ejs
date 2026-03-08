@@ -1,0 +1,128 @@
+<%- include('partials/header', { titulo, categorias }) %>
+
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="auth-form">
+      <h1>Crear Cuenta</h1>
+
+      <form id="register-form" class="form" novalidate>
+        <div class="form-group">
+          <label for="nombre">Nombre Completo:</label>
+          <input type="text" id="nombre" name="nombre" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="contrasena">Contrasena:</label>
+          <input type="password" id="contrasena" name="contrasena" minlength="8" required>
+          <small>Minimo 8 caracteres, 1 mayuscula, 1 numero</small>
+        </div>
+
+        <div class="form-group">
+          <label for="contrasena2">Repetir Contrasena:</label>
+          <input type="password" id="contrasena2" name="contrasena2" minlength="8" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-large">Crear Cuenta</button>
+      </form>
+
+      <p id="register-message" class="form-footer" aria-live="polite"></p>
+      <p class="form-footer">Ya tienes cuenta? <a href="/">Volver al inicio</a></p>
+    </div>
+
+    <div class="auth-info">
+      <h2>Requisitos de Seguridad de Contrasena</h2>
+      <div class="requirements">
+        <div class="requirement">
+          <span class="icon">1</span>
+          <p><strong>Longitud minima:</strong> 8 caracteres</p>
+        </div>
+        <div class="requirement">
+          <span class="icon">2</span>
+          <p><strong>Mayuscula:</strong> Al menos 1 letra mayuscula</p>
+        </div>
+        <div class="requirement">
+          <span class="icon">3</span>
+          <p><strong>Numero:</strong> Al menos 1 digito</p>
+        </div>
+      </div>
+
+      <div class="feature-list">
+        <h3>Tu seguridad es importante</h3>
+        <ul>
+          <li>Validacion de datos en servidor</li>
+          <li>Contrasena cifrada con bcrypt</li>
+          <li>Token JWT al registrarte</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const form = document.getElementById('register-form');
+    const message = document.getElementById('register-message');
+
+    const hasUppercase = (value) => /[A-Z]/.test(value);
+    const hasNumber = (value) => /\d/.test(value);
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      message.textContent = '';
+      message.classList.remove('alert', 'alert-error', 'alert-success');
+
+      const nombre = form.nombre.value.trim();
+      const email = form.email.value.trim();
+      const contrasena = form.contrasena.value;
+      const contrasena2 = form.contrasena2.value;
+
+      if (contrasena !== contrasena2) {
+        message.textContent = 'Las contrasenas no coinciden.';
+        message.classList.add('alert', 'alert-error');
+        return;
+      }
+
+      if (contrasena.length < 8 || !hasUppercase(contrasena) || !hasNumber(contrasena)) {
+        message.textContent = 'La contrasena no cumple los requisitos minimos.';
+        message.classList.add('alert', 'alert-error');
+        return;
+      }
+
+      try {
+        const payload = { nombre: nombre, email: email };
+        payload['contrase\u00f1a'] = contrasena;
+
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'No se pudo completar el registro.');
+        }
+
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+
+        message.textContent = 'Registro completado. Redirigiendo...';
+        message.classList.add('alert', 'alert-success');
+        setTimeout(function () {
+          window.location.href = '/';
+        }, 900);
+      } catch (error) {
+        message.textContent = error.message;
+        message.classList.add('alert', 'alert-error');
+      }
+    });
+  })();
+</script>
+
+<%- include('partials/footer') %>

@@ -27,6 +27,7 @@ app.use((req, res, next) => {
 const verifyToken = (req, res, next) => {
     const isPublicPath =
         req.path === '/' ||
+        req.path === '/register' ||
         /^\/producto\/\d+$/.test(req.path) ||
         req.path === '/health' ||
         req.path === '/metrics' ||
@@ -106,6 +107,24 @@ app.get('/', async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+});
+
+app.get('/register', async (req, res) => {
+    let categorias = [];
+
+    try {
+        const categoriasResp = await fetchServiceJson(`${productServiceUrl}/api/categorias`);
+        categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+    } catch {
+        categorias = [];
+    }
+
+    res.render('register', {
+        titulo: 'Registro',
+        categorias
+    });
 });
 
 app.get('/producto/:id', async (req, res, next) => {
