@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMS Low Stock Alert Settings</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   </head>
   <body class="bg-slate-100">
     <main class="max-w-6xl mx-auto p-8 space-y-6">
@@ -14,8 +14,9 @@
         <div class="grid md:grid-cols-2 gap-3">
           <label class="text-sm"
             >Enable Low Stock Notifications
-            <input type="checkbox" checked class="ml-2" /></label
-          ><label class="text-sm"
+            <input type="checkbox" checked class="ml-2"
+          /></label>
+          <label class="text-sm"
             >Global Low Stock Threshold
             <input class="ml-2 border rounded p-1 w-20" value="15"
           /></label>

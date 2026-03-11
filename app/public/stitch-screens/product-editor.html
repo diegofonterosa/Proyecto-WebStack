@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMS Product Editor Interface</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   </head>
   <body class="bg-slate-100 text-slate-900">
     <main class="max-w-6xl mx-auto p-8 grid lg:grid-cols-[1fr_360px] gap-6">
@@ -15,7 +15,8 @@
           <input
             class="w-full border rounded-lg p-3 mb-3"
             placeholder="Product Title"
-          /><textarea
+          />
+          <textarea
             class="w-full border rounded-lg p-3 min-h-[220px]"
             placeholder="Write a detailed description here..."
           ></textarea>
@@ -23,10 +24,13 @@
         <div class="bg-white border rounded-xl p-6">
           <h2 class="text-xl font-semibold mb-4">Pricing & Inventory</h2>
           <div class="grid md:grid-cols-2 gap-3">
-            <input class="border rounded-lg p-3" placeholder="Price" /><input
+            <input class="border rounded-lg p-3" placeholder="Price" />
+            <input
               class="border rounded-lg p-3"
               placeholder="Compare at Price"
-            /><input class="border rounded-lg p-3" placeholder="SKU" /><input
+            />
+            <input class="border rounded-lg p-3" placeholder="SKU" />
+            <input
               class="border rounded-lg p-3"
               placeholder="Quantity in Stock"
             />
