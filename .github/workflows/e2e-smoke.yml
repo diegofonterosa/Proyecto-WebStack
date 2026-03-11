@@ -17,6 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Create .env for compose validation
+        run: cp .env.example .env
+
       - name: Run CI sanity checks
         run: bash archive/scripts/ci-sanity.sh
 
@@ -28,6 +31,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Create .env from secrets
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD || 'rootpass123' }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD || 'tienda_pass123' }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci_jwt_secret_insecure_32chars_x' }}
+          STRAPI_DB_PASSWORD: ${{ secrets.STRAPI_DB_PASSWORD || 'strapi_pass' }}
+          STRAPI_ADMIN_JWT_SECRET: ${{ secrets.STRAPI_ADMIN_JWT_SECRET || 'ci_admin_jwt_insecure_32chars_xx' }}
+        run: |
+          printf 'MYSQL_ROOT_PASSWORD=%s\n' "$MYSQL_ROOT_PASSWORD" >> .env
+          printf 'MYSQL_DATABASE=tienda_db\n' >> .env
+          printf 'MYSQL_USER=tienda_user\n' >> .env
+          printf 'MYSQL_PASSWORD=%s\n' "$MYSQL_PASSWORD" >> .env
+          printf 'JWT_SECRET=%s\n' "$JWT_SECRET" >> .env
+          printf 'STRAPI_DB_PASSWORD=%s\n' "$STRAPI_DB_PASSWORD" >> .env
+          printf 'STRAPI_ADMIN_JWT_SECRET=%s\n' "$STRAPI_ADMIN_JWT_SECRET" >> .env
+          printf 'STRAPI_APP_KEYS=a2V5MQ==,a2V5Mg==,a2V5Mw==,a2V5NA==\n' >> .env
 
       - name: Prepare smoke script
         run: chmod +x archive/scripts/e2e-smoke.sh

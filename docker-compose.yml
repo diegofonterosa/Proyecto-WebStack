@@ -4,10 +4,10 @@ services:
     image: mysql:8.0
     container_name: tienda-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass123
-      MYSQL_DATABASE: tienda_db
-      MYSQL_USER: tienda_user
-      MYSQL_PASSWORD: tienda_pass123
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -29,7 +29,7 @@ services:
       AUTH_SERVICE_URL: http://auth-service:5001
       PRODUCT_SERVICE_URL: http://product-service:5002
       ORDER_SERVICE_URL: http://order-service:5003
-      JWT_SECRET: tu_secreto_jwt_muy_seguro_aqui
+      JWT_SECRET: ${JWT_SECRET}
       EJS_VIEWS_DIR: /app/views
       PUBLIC_ASSETS_DIR: /app/public-assets
     ports:
@@ -51,10 +51,10 @@ services:
     container_name: tienda-auth-service
     environment:
       DB_HOST: mysql
-      DB_USER: tienda_user
-      DB_PASS: tienda_pass123
-      DB_NAME: tienda_db
-      JWT_SECRET: tu_secreto_jwt_muy_seguro_aqui
+      DB_USER: ${MYSQL_USER}
+      DB_PASS: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "5001:5001"
     networks:
@@ -70,9 +70,9 @@ services:
     container_name: tienda-product-service
     environment:
       DB_HOST: mysql
-      DB_USER: tienda_user
-      DB_PASS: tienda_pass123
-      DB_NAME: tienda_db
+      DB_USER: ${MYSQL_USER}
+      DB_PASS: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
     ports:
       - "5002:5002"
     networks:
@@ -88,10 +88,10 @@ services:
     container_name: tienda-order-service
     environment:
       DB_HOST: mysql
-      DB_USER: tienda_user
-      DB_PASS: tienda_pass123
-      DB_NAME: tienda_db
-      JWT_SECRET: tu_secreto_jwt_muy_seguro_aqui
+      DB_USER: ${MYSQL_USER}
+      DB_PASS: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "5003:5003"
     networks:
@@ -112,12 +112,13 @@ services:
       DATABASE_PORT: 3306
       DATABASE_NAME: strapi_db
       DATABASE_USER: strapi_user
-      DATABASE_PASSWORD: strapi_pass
+      DATABASE_PASSWORD: ${STRAPI_DB_PASSWORD}
       NODE_ENV: development
       HOST: 0.0.0.0
       PORT: 1337
-      ADMIN_JWT_SECRET: tu_secreto_admin_jwt_muy_seguro_aqui
-      JWT_SECRET: tu_secreto_jwt_muy_seguro_aqui
+      ADMIN_JWT_SECRET: ${STRAPI_ADMIN_JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      APP_KEYS: ${STRAPI_APP_KEYS}
       API_URL: http://localhost:1337
       ADMIN_URL: http://localhost:1337/admin
     ports:

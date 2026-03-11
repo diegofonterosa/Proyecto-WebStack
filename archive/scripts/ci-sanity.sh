@@ -25,11 +25,18 @@ if git ls-files | xargs grep -nE "$critical_pattern" >/tmp/ci_critical_hits.txt 
     exit 1
 fi
 
-echo "[CHECK] Placeholder secrets (warning only)"
-if grep -nE 'JWT_SECRET: tu_secreto|MYSQL_ROOT_PASSWORD: rootpass123|MYSQL_PASSWORD: tienda_pass123|strapi_pass' docker-compose.yml >/tmp/ci_placeholder_hits.txt 2>/dev/null; then
-    while IFS= read -r line; do
-        echo "::warning::$line"
-    done </tmp/ci_placeholder_hits.txt
+echo "[CHECK] Secretos hardcodeados en docker-compose.yml (deben estar como variables)"
+if grep -nE ':\s+(rootpass|tienda_pass|strapi_pass|tu_secreto)' docker-compose.yml >/tmp/ci_hardcoded_hits.txt 2>/dev/null; then
+    echo "[ERROR] Secretos hardcodeados detectados en docker-compose.yml:"
+    cat /tmp/ci_hardcoded_hits.txt
+    echo "[ERROR] Mueve los secretos a .env y referéncialos con \${VAR_NAME}"
+    exit 1
+fi
+
+echo "[CHECK] Archivo .env.example presente en el repositorio"
+if [ ! -f ".env.example" ]; then
+    echo "[ERROR] Falta .env.example en la raíz del proyecto"
+    exit 1
 fi
 
 echo "[OK] CI sanity checks passed"
