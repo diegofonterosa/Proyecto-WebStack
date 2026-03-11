@@ -98,10 +98,11 @@
         const subtotal = Number(item.precio || 0) * Number(item.cantidad || 0);
         const tr = document.createElement('tr');
         tr.className = 'cart-item';
+        const imageSrc = item.imagen_url || '/images/placeholder.svg';
         tr.innerHTML = `
           <td>
             <div class="item-name">
-              <img src="${item.imagen_url || '/images/placeholder.jpg'}" alt="${item.nombre || 'Producto'}">
+              <img src="${imageSrc}" alt="${item.nombre || 'Producto'}" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
               <a href="/producto/${item.producto_id}">${item.nombre || 'Producto'}</a>
             </div>
           </td>

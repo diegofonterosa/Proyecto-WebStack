@@ -31,7 +31,7 @@
       <% productos.forEach((prod) => { %>
         <div class="product-card">
           <div class="product-image">
-            <img src="<%= prod.imagen_url || '/images/placeholder.jpg' %>" alt="<%= prod.nombre %>">
+            <img src="<%= prod.imagen_url || '/images/placeholder.svg' %>" alt="<%= prod.nombre %>" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
             <% if ((prod.stock ?? 0) <= 0) { %>
               <div class="out-of-stock">Agotado</div>
             <% } %>

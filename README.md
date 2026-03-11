@@ -46,6 +46,9 @@ Servicios esperados:
 - `GET /producto/:id` renderiza `app/views/product.ejs`
 - `GET /login` renderiza `app/views/login.ejs`
 - `GET /register` renderiza `app/views/register.ejs`
+- `GET /carrito` renderiza `app/views/carrito.ejs`
+- `GET /search?q=...` reutiliza `app/views/index.ejs` con resultados
+- `GET /categoria?c=...` reutiliza `app/views/index.ejs` filtrado
 - `GET /health`
 - `GET /metrics`
 - Proxy APIs:
@@ -59,6 +62,14 @@ Flujo de auth en vistas EJS:
 
 - `login.ejs` envia credenciales a `POST /api/auth/login`
 - `register.ejs` envia registro a `POST /api/auth/register`
+- `product.ejs` agrega al carrito via `POST /api/carrito/agregar` (Bearer token)
+- `carrito.ejs` consulta carrito en `GET /api/carrito` y checkout en `POST /api/pedidos/crear`
+
+## Imagenes de productos
+
+- Las rutas de BD (por ejemplo `/images/zapatos-azules.jpg`) deben existir dentro de `app/public/images`.
+- Si no existe el archivo, las vistas EJS usan fallback automatico a `/images/placeholder.svg`.
+- Puedes agregar imagenes reales en `app/public/images` usando los mismos nombres del seed SQL.
 
 ## Notas de rutas tras la limpieza
 

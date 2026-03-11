@@ -13,7 +13,7 @@
   const categoria = get(producto, 'categoria', 'getCategoria');
   const precio = Number(get(producto, 'precio', 'getPrecio') || 0);
   const descripcion = get(producto, 'descripcion', 'getDescripcion') || '';
-  const imagen = get(producto, 'imagen_url', 'getImagenUrl') || '/images/placeholder.jpg';
+  const imagen = get(producto, 'imagen_url', 'getImagenUrl') || '/images/placeholder.svg';
   const stock = Number(get(producto, 'stock', 'getStock') || 0);
 %>
 
@@ -25,7 +25,7 @@
 
     <div class="producto-container">
       <div class="producto-imagen">
-        <img src="<%= imagen %>" alt="<%= nombre %>" class="main-image">
+        <img src="<%= imagen %>" alt="<%= nombre %>" class="main-image" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
       </div>
 
       <div class="producto-datos">
@@ -81,7 +81,7 @@
         <% relacionados.slice(0, 4).forEach((prod) => { if (prod.id !== id) { %>
           <div class="product-card">
             <div class="product-image">
-              <img src="<%= prod.imagen_url || '/images/placeholder.jpg' %>" alt="<%= prod.nombre %>">
+              <img src="<%= prod.imagen_url || '/images/placeholder.svg' %>" alt="<%= prod.nombre %>" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
             </div>
             <div class="product-info">
               <h3><%= prod.nombre %></h3>
