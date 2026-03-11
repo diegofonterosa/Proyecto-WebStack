@@ -133,7 +133,10 @@ try {
     throw new Exception('Ruta no encontrada', 404);
 
 } catch (Exception $e) {
-    $code = $e->getCode() ?: 500;
+    $code = (int)$e->getCode();
+    if ($code < 100 || $code > 599) {
+        $code = 500;
+    }
     http_response_code($code);
     echo json_encode([
         'error' => $e->getMessage(),

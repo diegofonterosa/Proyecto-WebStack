@@ -29,7 +29,7 @@ $usuarioId = null;
 
 if ($token) {
     try {
-        $payload = json_decode(base64_decode(explode('.', $token)[1]), true);
+        $payload = verificarJWT($token);
         $usuarioId = $payload['sub'] ?? null;
     } catch (Exception $e) {
         http_response_code(401);
@@ -46,14 +46,26 @@ try {
         if (!$usuarioId) throw new Exception('No autenticado', 401);
 
         $input = json_decode(file_get_contents('php://input'), true);
+        if (!is_array($input)) {
+            throw new Exception('Payload inválido', 400);
+        }
         
         if (!isset($input['producto_id']) || !isset($input['cantidad'])) {
             throw new Exception('Parámetros requeridos', 400);
         }
 
+        $productoId = (int)$input['producto_id'];
+        $cantidad = (int)$input['cantidad'];
+
+        if ($productoId <= 0 || $cantidad <= 0) {
+            throw new Exception('Parámetros inválidos', 400);
+        }
+
         // Verificar stock
-        $prod = $pdo->query("SELECT stock FROM productos WHERE id = {$input['producto_id']}")->fetch();
-        if (!$prod || $prod['stock'] < $input['cantidad']) {
+        $stockStmt = $pdo->prepare('SELECT stock FROM productos WHERE id = ?');
+        $stockStmt->execute([$productoId]);
+        $prod = $stockStmt->fetch();
+        if (!$prod || $prod['stock'] < $cantidad) {
             throw new Exception('Stock insuficiente', 400);
         }
 
@@ -63,7 +75,7 @@ try {
             VALUES (?, ?, ?)
             ON DUPLICATE KEY UPDATE cantidad = cantidad + ?
         ');
-        $stmt->execute([$usuarioId, $input['producto_id'], $input['cantidad'], $input['cantidad']]);
+        $stmt->execute([$usuarioId, $productoId, $cantidad, $cantidad]);
 
         http_response_code(200);
         echo json_encode(['success' => true, 'message' => 'Producto agregado']);
@@ -156,7 +168,9 @@ try {
             exit;
 
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             throw $e;
         }
     }
@@ -190,7 +204,10 @@ try {
     throw new Exception('Ruta no encontrada', 404);
 
 } catch (Exception $e) {
-    $code = $e->getCode() ?: 500;
+    $code = (int)$e->getCode();
+    if ($code < 100 || $code > 599) {
+        $code = 500;
+    }
     http_response_code($code);
     echo json_encode([
         'error' => $e->getMessage(),
@@ -208,4 +225,51 @@ function getDatabase() {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
     ]);
+}
+
+function verificarJWT($token) {
+    $parts = explode('.', $token);
+    if (count($parts) !== 3) {
+        throw new Exception('Token inválido', 401);
+    }
+
+    [$encodedHeader, $encodedPayload, $encodedSignature] = $parts;
+    $secret = getenv('JWT_SECRET') ?: 'secret';
+
+    $expectedRaw = hash_hmac('sha256', $encodedHeader . '.' . $encodedPayload, $secret, true);
+    $signatureRaw = base64UrlDecode($encodedSignature);
+
+    if ($signatureRaw === false || !hash_equals($expectedRaw, $signatureRaw)) {
+        throw new Exception('Token inválido', 401);
+    }
+
+    $payloadJson = base64UrlDecode($encodedPayload);
+    if ($payloadJson === false) {
+        throw new Exception('Token inválido', 401);
+    }
+
+    $payload = json_decode($payloadJson, true);
+    if (!is_array($payload)) {
+        throw new Exception('Token inválido', 401);
+    }
+
+    if (!isset($payload['exp']) || $payload['exp'] < time()) {
+        throw new Exception('Token expirado', 401);
+    }
+
+    return $payload;
+}
+
+function base64UrlDecode($input) {
+    $remainder = strlen($input) % 4;
+    if ($remainder > 0) {
+        $input .= str_repeat('=', 4 - $remainder);
+    }
+
+    $decoded = base64_decode(strtr($input, '-_', '+/'), true);
+    if ($decoded === false) {
+        $decoded = base64_decode($input, true);
+    }
+
+    return $decoded;
 }
