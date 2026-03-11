@@ -1,44 +1,116 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>CMS Media Library Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#137fec",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body class="bg-slate-100">
-    <main class="max-w-7xl mx-auto p-8">
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-3xl font-bold">Media Library</h1>
-        <button class="px-4 py-2 rounded bg-sky-600 text-white">Upload</button>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        <div class="bg-white rounded-xl border p-2">
-          <div class="aspect-square bg-slate-200 rounded"></div>
-          <p class="text-sm mt-2">Summer Sale Banner</p>
-          <p class="text-xs text-slate-500">PNG • 1.2 MB</p>
+  <body
+    class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen"
+  >
+    <div class="flex h-screen overflow-hidden">
+      <main
+        class="flex-1 flex flex-col h-full bg-background-light dark:bg-background-dark relative"
+      >
+        <header
+          class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-8 py-4 z-10"
+        >
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight">Media Library</h1>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              Manage and organize your store assets
+            </p>
+          </div>
+          <button
+            class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+          >
+            <span>Upload</span>
+          </button>
+        </header>
+        <div class="flex-1 overflow-y-auto p-8">
+          <div
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6"
+          >
+            <div class="group relative flex flex-col gap-2 cursor-pointer">
+              <div
+                class="aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border-2 border-primary relative"
+              >
+                <div
+                  class="w-full h-full bg-cover bg-center"
+                  style="
+                    background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuD4acQxPexG2CHIfuNnXmronx8-ZedetVImiVA7hoiUqFexaZWgAnLePgfeXVwglznD7IC6btFBZwvIZ3M785GZMWGhUHNPbp1eqaQu-oBvovEFcJs8P8keKnYxrV5_3QYrRGEbax-1PnE4HJPeeZkS3_ngonvhQbYc53SwyN_k-3fMWlG4_JCtwGv6iAMRu4MTTh98ojHQf-Wd-Yohchgp5rwKax84CUihlfLpBNCAD28pTYvfwAAR31CK4gx6dvhviQ5Ib6jk-1c&quot;);
+                  "
+                ></div>
+              </div>
+              <div>
+                <p class="text-sm font-medium truncate">Summer Sale Banner</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  PNG • 1.2 MB
+                </p>
+              </div>
+            </div>
+            <div class="group relative flex flex-col gap-2 cursor-pointer">
+              <div
+                class="aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
+              >
+                <div
+                  class="w-full h-full bg-cover bg-center"
+                  style="
+                    background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuCWN2u-m-k_2VlR7ayJom0-w9TgrEtyL71Tom2aaarrDrMm6QIPr6waA78VHGpRhkrb2ypecOEytV8Ft7z_oAMz-X7SApTBXF_kg7EgPwv-TdSyItBedpEg1E292TRaoIVwj9jRGocQGdJFHHpakw1mmRRIZj3R611dtvjlfiVM37J-HY9R9L0QtB-Gbg9MmN3xPctefraiWBqht3YABJcIx7DaGbRHV3GZhYv9HXU4anKqQSUhF71rEcbgkE4YTLiX8zg4NCfcSyg&quot;);
+                  "
+                ></div>
+              </div>
+              <div>
+                <p class="text-sm font-medium truncate">Milfshake Logo</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  SVG • 45 KB
+                </p>
+              </div>
+            </div>
+            <div class="group relative flex flex-col gap-2 cursor-pointer">
+              <div
+                class="aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
+              >
+                <div
+                  class="w-full h-full bg-cover bg-center"
+                  style="
+                    background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuC2u8qj4SfOKIlSi9oZzbuux3YCkSojawzWRd9dmX0nvF-qB-v4pvNEQyVCxEFz2sFyPFt2_J6NyDYY2taxkEv3NVGRbzDjD7JQ9sOkYd5l6QTP9MDhLvrDPzeMeXNpATIkchJpwqqrwXDjjFFOmfxUgXonyhK8Eo8l4fLBHF7ruO1pVp2-bZXb8-Ij2RemlsKeLti4_8C8gKo6iqk4MGRAtnyngzPLhuNpwMceWExpJLdtnJX5-s_3DNIvqoVKliOwv4jLbuE1OO8&quot;);
+                  "
+                ></div>
+              </div>
+              <div>
+                <p class="text-sm font-medium truncate">Promo Video</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  MP4 • 15 MB
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="bg-white rounded-xl border p-2">
-          <div class="aspect-square bg-slate-200 rounded"></div>
-          <p class="text-sm mt-2">Milfshake Logo</p>
-          <p class="text-xs text-slate-500">SVG • 45 KB</p>
-        </div>
-        <div class="bg-white rounded-xl border p-2">
-          <div class="aspect-square bg-slate-200 rounded"></div>
-          <p class="text-sm mt-2">Promo Video</p>
-          <p class="text-xs text-slate-500">MP4 • 15 MB</p>
-        </div>
-        <div class="bg-white rounded-xl border p-2">
-          <div class="aspect-square bg-slate-200 rounded"></div>
-          <p class="text-sm mt-2">Hoodie Model</p>
-          <p class="text-xs text-slate-500">JPG • 1.5 MB</p>
-        </div>
-        <div class="bg-white rounded-xl border p-2">
-          <div class="aspect-square bg-slate-200 rounded"></div>
-          <p class="text-sm mt-2">Brand Guidelines</p>
-          <p class="text-xs text-slate-500">PDF • 4.2 MB</p>
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   </body>
 </html>

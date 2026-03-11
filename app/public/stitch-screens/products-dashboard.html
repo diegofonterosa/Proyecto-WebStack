@@ -1,66 +1,246 @@
 <!doctype html>
-<html class="dark" lang="en">
+
+<html class="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CMS Product Management Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
       rel="stylesheet"
     />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#137fec",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "surface-dark": "#1a232c",
+              "border-dark": "#2d3748",
+              "text-muted": "#94a3b8",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
   </head>
   <body
-    class="bg-slate-950 text-slate-100"
-    style="font-family: Inter, sans-serif"
+    class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen"
   >
-    <main class="max-w-7xl mx-auto p-8 space-y-6">
-      <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold">Product Management</h1>
-        <button class="px-4 py-2 rounded-lg bg-sky-600">Add Product</button>
+    <div
+      class="relative flex h-screen w-full flex-col group/design-root overflow-hidden"
+    >
+      <div class="flex h-full grow flex-col">
+        <header
+          class="flex items-center justify-between whitespace-nowrap border-b border-border-dark px-6 py-3 bg-surface-dark shrink-0"
+        >
+          <div class="flex items-center gap-8">
+            <div class="flex items-center gap-4 text-slate-100">
+              <div class="size-6 text-primary">
+                <span class="material-symbols-outlined text-2xl"
+                  >local_mall</span
+                >
+              </div>
+              <h2
+                class="text-slate-100 text-lg font-bold leading-tight tracking-[-0.015em]"
+              >
+                Milfshakes CMS
+              </h2>
+            </div>
+          </div>
+        </header>
+        <div class="flex flex-1 overflow-hidden">
+          <aside
+            class="w-64 flex-shrink-0 flex flex-col justify-between bg-surface-dark border-r border-border-dark py-4 overflow-y-auto hidden md:flex"
+          >
+            <div class="flex flex-col gap-2 px-3">
+              <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary border border-primary/20"
+                href="#"
+                ><span class="material-symbols-outlined">inventory_2</span
+                ><span class="text-sm font-medium">Products</span></a
+              >
+            </div>
+          </aside>
+          <main class="flex-1 flex flex-col overflow-hidden bg-background-dark">
+            <div class="flex-1 overflow-y-auto p-6 lg:p-8">
+              <div class="max-w-7xl mx-auto space-y-6">
+                <div
+                  class="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div class="flex flex-col gap-1">
+                    <h1
+                      class="text-slate-100 text-2xl sm:text-3xl font-bold leading-tight tracking-tight"
+                    >
+                      Product Management
+                    </h1>
+                    <p class="text-text-muted text-sm font-normal">
+                      Manage your store's products, pricing, and inventory.
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <button
+                      class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-medium gap-2"
+                    >
+                      <span class="material-symbols-outlined text-lg">add</span
+                      ><span class="truncate">Add Product</span>
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="bg-surface-dark border border-border-dark rounded-xl overflow-hidden shadow-sm"
+                >
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                      <thead>
+                        <tr
+                          class="bg-background-dark border-b border-border-dark"
+                        >
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider w-16"
+                          >
+                            Image
+                          </th>
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider"
+                          >
+                            Product Name
+                          </th>
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider"
+                          >
+                            SKU
+                          </th>
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider"
+                          >
+                            Category
+                          </th>
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider"
+                          >
+                            Price
+                          </th>
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider min-w-[150px]"
+                          >
+                            Stock Level
+                          </th>
+                          <th
+                            class="px-5 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider text-right"
+                          >
+                            Status
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-border-dark">
+                        <tr
+                          class="hover:bg-background-dark/50 transition-colors group"
+                        >
+                          <td class="px-5 py-3">
+                            <img
+                              alt="Black T-shirt thumbnail"
+                              class="w-10 h-10 rounded-md object-cover border border-border-dark bg-background-dark"
+                              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-KUN8-wCT_5tAEgBBozhgEw_cPFDDTLWCq_XpXVAFAxwDEPigiLwXhC5_2K40Q0I0saC2W-Cj6VBNQjGZmIsQx_Qa76Uh4yobv80v1UM3QVFTjPq68P4m1RBwhMg3-oheMt97H4qnwrxRKBBW-IrZeW5F-6895GPWmSvoHvOn9c8OUdl22N_L7frv9QdDr1HHizUTvcDovL3lSAHhCSqEPegomSY2nItBpkFkTWmgYkjKCQMYBvUgz123R6HmgzjQZFi-Gf_7BUE"
+                            />
+                          </td>
+                          <td class="px-5 py-3">
+                            <p class="text-slate-200 font-medium text-sm">
+                              Milfshakes Logo Black T-Shirt
+                            </p>
+                          </td>
+                          <td
+                            class="px-5 py-3 text-text-muted text-sm font-mono"
+                          >
+                            MS-TEE-BLK-M
+                          </td>
+                          <td class="px-5 py-3">
+                            <span
+                              class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-background-dark border border-border-dark text-slate-300"
+                              >T-shirts</span
+                            >
+                          </td>
+                          <td
+                            class="px-5 py-3 text-slate-200 text-sm font-medium"
+                          >
+                            $25.00
+                          </td>
+                          <td class="px-5 py-3">
+                            <span class="text-slate-300 text-sm font-medium"
+                              >80</span
+                            >
+                          </td>
+                          <td class="px-5 py-3 text-right">
+                            <span
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              >Published</span
+                            >
+                          </td>
+                        </tr>
+                        <tr
+                          class="hover:bg-background-dark/50 transition-colors group"
+                        >
+                          <td class="px-5 py-3">
+                            <img
+                              alt="Grey hoodie thumbnail"
+                              class="w-10 h-10 rounded-md object-cover border border-border-dark bg-background-dark"
+                              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuOyzzQdJ4WsIJzZK7SBey-mANLDEHfPAe33ILr7MkknVq2K1_Hh27qA41mGcjoNirAxrKJUd4ZEI0CSJGXOybBifqIii5ABcKDPF2eLguD5YjobMu5LPzt-iSewVXJcYp8fmAqxmcTb1WRupoeaKLH1yR2o_kkJbR-91Ws7Uz8gBGFrup240Jbg8yRe_r5Gk2tvWjcWXzdSf75ktmPYq6JtlnP43rwxcOn2R927datFy6U5BaPYWW9L_PQ4z1N-6JVQPTbLClAe4"
+                            />
+                          </td>
+                          <td class="px-5 py-3">
+                            <p class="text-slate-200 font-medium text-sm">
+                              Classic Hoodie Grey
+                            </p>
+                          </td>
+                          <td
+                            class="px-5 py-3 text-text-muted text-sm font-mono"
+                          >
+                            MS-HDY-GRY-L
+                          </td>
+                          <td class="px-5 py-3">
+                            <span
+                              class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-background-dark border border-border-dark text-slate-300"
+                              >Hoodies</span
+                            >
+                          </td>
+                          <td
+                            class="px-5 py-3 text-slate-200 text-sm font-medium"
+                          >
+                            $45.00
+                          </td>
+                          <td class="px-5 py-3">
+                            <span class="text-slate-300 text-sm font-medium"
+                              >45</span
+                            >
+                          </td>
+                          <td class="px-5 py-3 text-right">
+                            <span
+                              class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              >Published</span
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
-      <div
-        class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden"
-      >
-        <table class="w-full">
-          <thead>
-            <tr class="bg-slate-800">
-              <th class="p-3 text-left">Product Name</th>
-              <th class="p-3 text-left">SKU</th>
-              <th class="p-3 text-left">Category</th>
-              <th class="p-3 text-left">Price</th>
-              <th class="p-3 text-left">Stock</th>
-              <th class="p-3 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="border-t border-slate-800">
-              <td class="p-3">Milfshakes Logo Black T-Shirt</td>
-              <td class="p-3">MS-TEE-BLK-M</td>
-              <td class="p-3">T-shirts</td>
-              <td class="p-3">$25.00</td>
-              <td class="p-3">80</td>
-              <td class="p-3 text-emerald-400">Published</td>
-            </tr>
-            <tr class="border-t border-slate-800">
-              <td class="p-3">Classic Hoodie Grey</td>
-              <td class="p-3">MS-HDY-GRY-L</td>
-              <td class="p-3">Hoodies</td>
-              <td class="p-3">$45.00</td>
-              <td class="p-3">45</td>
-              <td class="p-3 text-emerald-400">Published</td>
-            </tr>
-            <tr class="border-t border-slate-800">
-              <td class="p-3">Vintage Wash Denim Jacket</td>
-              <td class="p-3">MS-JAC-DEN-S</td>
-              <td class="p-3">Outerwear</td>
-              <td class="p-3">$85.00</td>
-              <td class="p-3">15</td>
-              <td class="p-3 text-slate-400">Draft</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
+    </div>
   </body>
 </html>

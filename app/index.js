@@ -249,7 +249,14 @@ const renderStitchBySlug = (req, res, slug) => {
 };
 
 app.get('/stitch/:slug', (req, res) => {
-	return renderStitchBySlug(req, res, req.params.slug);
+	if (!stitchScreensBySlug.has(req.params.slug)) {
+		return res.status(404).render('stitch/screen', {
+			titulo: 'Pantalla no encontrada',
+			screen: null
+		});
+	}
+
+	return sendStitchHtml(res, req.params.slug);
 });
 
 app.get('/storefront', (req, res) => res.redirect('/storefront/home'));
