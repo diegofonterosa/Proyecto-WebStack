@@ -120,23 +120,90 @@ Flujo de auth en vistas EJS:
 | **Navegación** | Hardcoded `href` a rutas explícitas (0 placeholders dinámicos) |
 | **Modo rendering** | La ruta `/stitch/:slug` llama directo a `sendStitchHtml(res, slug)` |
 
+### Integración Dinámica con API
+
+Parte de las pantallas Stitch están **conectadas a APIs reales** sin necesidad de refresh manualmente:
+
+#### Pantallas Integradas
+
+**Storefront**
+- `GET /storefront/catalog` - Carga grid de productos desde `GET /api/productos`
+- `GET /storefront/cart` - Carga items desde `GET /api/carrito`, calcula tax/total automáticamente
+
+**Admin**
+- `GET /admin/products` - Tabla dinámica de productos con SKU, categoría, stock, estado
+  - Estado real: "In Stock" (>20), "Low Stock" (5-20), "Out of Stock" (<5)
+
+#### Utilidades de API (`api-utils.js`)
+
+Archivo reutilizable: `/app/public/stitch-screens/api-utils.js` (8.3 KB)
+
+**Funciones principales:**
+```javascript
+// Autenticación
+getAuthToken()              // Obtener token de localStorage
+setAuthToken(token)         // Guardar token JWT
+
+// Fetch autenticado
+apiCall(endpoint, options)  // Request con Bearer token automático
+
+// Endpoints de productos
+getProductos(page, limit)   // GET /api/productos con paginación
+getProductoById(id)         // GET /api/productos/:id
+searchProductos(q, cat)     // GET /api/productos/search
+getCategorias()             // GET /api/categorias
+
+// Endpoints de carrito
+getCarrito()                // GET /api/carrito
+agregarAlCarrito(id, qty)   // POST /api/carrito/agregar
+
+// Rendering
+renderProductosGrid()       // Genera HTML grid de 3 columnas
+renderProductosTable()      // Genera tabla con acciones admin
+escapeHtml()                // Prevención de XSS
+```
+
+**Seguridad:**
+- Tokens JWT en `localStorage` inyectados automáticamente
+- Validación 401 → redirección a `/login` si token expira
+- HTML escapado para prevenir XSS
+
 ### Desarrollo & Debugging Local
 
-Las pantallas Stitch se renderizan automáticamente sin lógica dinámica (contenido estático). Para desarrollo local:
-
+**Acceder a pantallas integradas:**
 ```bash
-# Acceder a cualquier pantalla
-curl http://localhost:5000/storefront/home
-curl http://localhost:5000/admin/dashboard
+# Cargar catálogo de productos
+curl http://localhost:5000/storefront/catalog
+
+# Cargar tabla admin de productos
+curl http://localhost:5000/admin/products
+
+# Cargar carrito
+curl http://localhost:5000/storefront/cart
 
 # Listar todas las pantallas disponibles
 curl http://localhost:5000/stitch
 ```
 
-**Notas para integración futura:**
-- Data binding: Conectar producto editor/catálogo con endpoints `/api/productos`
-- Mock responses: Para testing sin backend, usar datos inline en HTML
-- Dark mode: Algunas pantallas (ej: `products-dashboard`) incluyen tema oscuro via Tailwind
+**Testing dinámico:**
+```bash
+# Verificar API de productos funcionando
+curl http://localhost:5000/api/productos
+
+# Agregar al carrito (con token)
+curl -X POST http://localhost:5000/api/carrito/agregar \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"producto_id": 1, "cantidad": 1}'
+```
+
+**Notas para desarrollo:**
+- Pantallas sin integración (ej: checkout, product-editor) aún contienen datos mock
+- para agregar integración a más pantallas:
+  1. Importar `api-utils.js` en el HTML
+  2. Llamar funciones como `getProductos()`, `getCarrito()` en `DOMContentLoaded`
+  3. Renderizar respuesta con `renderProductosGrid()` o custom HTML
+- Fallback automático a `/images/placeholder.svg` si imagen no existe
 
 ## Imagenes de productos
 
