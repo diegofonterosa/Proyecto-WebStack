@@ -1,8 +1,73 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>SSL Certificate Management Dashboard</title><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/></head>
-<body class="bg-slate-100 text-slate-900" style="font-family: Inter, sans-serif;">
-<header class="bg-white border-b px-8 py-4"><h1 class="text-2xl font-bold">SSL Certificate Management Dashboard</h1></header>
-<main class="max-w-7xl mx-auto p-8 space-y-6">
-<div class="grid md:grid-cols-3 gap-4"><div class="bg-white rounded-xl border p-5"><p class="text-sm text-slate-500">Total Certificates</p><p class="text-3xl font-bold">45</p></div><div class="bg-amber-50 rounded-xl border border-amber-200 p-5"><p class="text-sm text-amber-700">Expiring Soon</p><p class="text-3xl font-bold text-amber-700">3</p></div><div class="bg-red-50 rounded-xl border border-red-200 p-5"><p class="text-sm text-red-700">Expired</p><p class="text-3xl font-bold text-red-700">1</p></div></div>
-<div class="bg-white rounded-xl border overflow-hidden"><table class="w-full"><thead class="bg-slate-50"><tr><th class="p-3 text-left">Common Name</th><th class="p-3 text-left">Issuer</th><th class="p-3 text-left">Issue Date</th><th class="p-3 text-left">Expiry Date</th><th class="p-3 text-left">Status</th></tr></thead><tbody><tr><td class="p-3">store.milfshakes.com</td><td class="p-3">Let's Encrypt</td><td class="p-3">Jan 1, 2023</td><td class="p-3">Mar 1, 2024</td><td class="p-3 text-emerald-700">Active</td></tr><tr class="bg-amber-50"><td class="p-3">dev.milfshakes.com</td><td class="p-3">Let's Encrypt</td><td class="p-3">Nov 10, 2022</td><td class="p-3">Feb 8, 2023</td><td class="p-3 text-amber-700">Expiring Soon</td></tr><tr class="bg-red-50"><td class="p-3">admin.milfshakes.com</td><td class="p-3">Let's Encrypt</td><td class="p-3">Sep 5, 2022</td><td class="p-3">Dec 4, 2022</td><td class="p-3 text-red-700">Expired</td></tr></tbody></table></div>
-</main></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SSL Certificate Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="bg-slate-100 text-slate-900"
+    style="font-family: Inter, sans-serif"
+  >
+    <header class="bg-white border-b px-8 py-4">
+      <h1 class="text-2xl font-bold">SSL Certificate Management Dashboard</h1>
+    </header>
+    <main class="max-w-7xl mx-auto p-8 space-y-6">
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border p-5">
+          <p class="text-sm text-slate-500">Total Certificates</p>
+          <p class="text-3xl font-bold">45</p>
+        </div>
+        <div class="bg-amber-50 rounded-xl border border-amber-200 p-5">
+          <p class="text-sm text-amber-700">Expiring Soon</p>
+          <p class="text-3xl font-bold text-amber-700">3</p>
+        </div>
+        <div class="bg-red-50 rounded-xl border border-red-200 p-5">
+          <p class="text-sm text-red-700">Expired</p>
+          <p class="text-3xl font-bold text-red-700">1</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="p-3 text-left">Common Name</th>
+              <th class="p-3 text-left">Issuer</th>
+              <th class="p-3 text-left">Issue Date</th>
+              <th class="p-3 text-left">Expiry Date</th>
+              <th class="p-3 text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-3">store.milfshakes.com</td>
+              <td class="p-3">Let's Encrypt</td>
+              <td class="p-3">Jan 1, 2023</td>
+              <td class="p-3">Mar 1, 2024</td>
+              <td class="p-3 text-emerald-700">Active</td>
+            </tr>
+            <tr class="bg-amber-50">
+              <td class="p-3">dev.milfshakes.com</td>
+              <td class="p-3">Let's Encrypt</td>
+              <td class="p-3">Nov 10, 2022</td>
+              <td class="p-3">Feb 8, 2023</td>
+              <td class="p-3 text-amber-700">Expiring Soon</td>
+            </tr>
+            <tr class="bg-red-50">
+              <td class="p-3">admin.milfshakes.com</td>
+              <td class="p-3">Let's Encrypt</td>
+              <td class="p-3">Sep 5, 2022</td>
+              <td class="p-3">Dec 4, 2022</td>
+              <td class="p-3 text-red-700">Expired</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+</html>

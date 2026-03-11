@@ -1,3 +1,59 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>CMS Product Editor Interface</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-slate-100 text-slate-900"><main class="max-w-6xl mx-auto p-8 grid lg:grid-cols-[1fr_360px] gap-6"><section class="space-y-6"><h1 class="text-3xl font-bold">Add/Edit Product</h1><div class="bg-white border rounded-xl p-6"><h2 class="text-xl font-semibold mb-4">Product Details</h2><input class="w-full border rounded-lg p-3 mb-3" placeholder="Product Title"/><textarea class="w-full border rounded-lg p-3 min-h-[220px]" placeholder="Write a detailed description here..."></textarea></div><div class="bg-white border rounded-xl p-6"><h2 class="text-xl font-semibold mb-4">Pricing & Inventory</h2><div class="grid md:grid-cols-2 gap-3"><input class="border rounded-lg p-3" placeholder="Price"/><input class="border rounded-lg p-3" placeholder="Compare at Price"/><input class="border rounded-lg p-3" placeholder="SKU"/><input class="border rounded-lg p-3" placeholder="Quantity in Stock"/></div></div></section><aside class="space-y-6"><div class="bg-white border rounded-xl p-6"><h3 class="font-semibold mb-3">Publishing</h3><p class="text-sm text-slate-600">Status: Draft</p></div><div class="bg-white border rounded-xl p-6"><h3 class="font-semibold mb-3">Product Media</h3><div class="border-2 border-dashed rounded-lg p-10 text-center text-slate-500">Drag and drop images</div></div><div class="bg-white border rounded-xl p-6"><h3 class="font-semibold mb-3">Organization</h3><input class="w-full border rounded-lg p-3 mb-2" placeholder="Category"/><input class="w-full border rounded-lg p-3" placeholder="Tags"/></div></aside></main></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CMS Product Editor Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-100 text-slate-900">
+    <main class="max-w-6xl mx-auto p-8 grid lg:grid-cols-[1fr_360px] gap-6">
+      <section class="space-y-6">
+        <h1 class="text-3xl font-bold">Add/Edit Product</h1>
+        <div class="bg-white border rounded-xl p-6">
+          <h2 class="text-xl font-semibold mb-4">Product Details</h2>
+          <input
+            class="w-full border rounded-lg p-3 mb-3"
+            placeholder="Product Title"
+          /><textarea
+            class="w-full border rounded-lg p-3 min-h-[220px]"
+            placeholder="Write a detailed description here..."
+          ></textarea>
+        </div>
+        <div class="bg-white border rounded-xl p-6">
+          <h2 class="text-xl font-semibold mb-4">Pricing & Inventory</h2>
+          <div class="grid md:grid-cols-2 gap-3">
+            <input class="border rounded-lg p-3" placeholder="Price" /><input
+              class="border rounded-lg p-3"
+              placeholder="Compare at Price"
+            /><input class="border rounded-lg p-3" placeholder="SKU" /><input
+              class="border rounded-lg p-3"
+              placeholder="Quantity in Stock"
+            />
+          </div>
+        </div>
+      </section>
+      <aside class="space-y-6">
+        <div class="bg-white border rounded-xl p-6">
+          <h3 class="font-semibold mb-3">Publishing</h3>
+          <p class="text-sm text-slate-600">Status: Draft</p>
+        </div>
+        <div class="bg-white border rounded-xl p-6">
+          <h3 class="font-semibold mb-3">Product Media</h3>
+          <div
+            class="border-2 border-dashed rounded-lg p-10 text-center text-slate-500"
+          >
+            Drag and drop images
+          </div>
+        </div>
+        <div class="bg-white border rounded-xl p-6">
+          <h3 class="font-semibold mb-3">Organization</h3>
+          <input
+            class="w-full border rounded-lg p-3 mb-2"
+            placeholder="Category"
+          /><input class="w-full border rounded-lg p-3" placeholder="Tags" />
+        </div>
+      </aside>
+    </main>
+  </body>
+</html>
