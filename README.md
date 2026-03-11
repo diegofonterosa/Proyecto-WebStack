@@ -360,6 +360,55 @@ Chequeo rapido:
 bash archive/scripts/observability-check.sh
 ```
 
+## Despliegue recomendado (Netlify + Backend separado)
+
+Arquitectura sugerida para este proyecto:
+
+- Frontend Stitch estatico en Netlify.
+- API Gateway + microservicios en Render/Railway/Fly.io (o VPS con Docker).
+- Base de datos MySQL gestionada (o contenedor persistente en el proveedor backend).
+
+### Flujo recomendado
+
+1. Desplegar backend primero y obtener URL publica del gateway (ej: `https://api.tu-dominio.com`).
+2. Configurar frontend para consumir esa URL publica (variables de entorno o config del gateway frontend).
+3. Publicar frontend en Netlify apuntando al directorio estatico servido.
+4. Configurar dominio final y HTTPS.
+
+### Nota importante
+
+- GitHub Pages y Netlify por si solos no ejecutan esta arquitectura de microservicios Docker completa.
+- Si solo publicas frontend estatico sin backend, login/carrito/pedidos no funcionaran.
+
+## Checklist post-deploy
+
+### Funcional
+
+- [ ] `GET /health` responde 200.
+- [ ] Login y registro funcionan contra `/api/auth/*`.
+- [ ] Catalogo carga productos reales (`/api/productos`).
+- [ ] Carrito agrega/elimina/actualiza cantidades.
+- [ ] Checkout crea pedido (`/api/pedidos/crear`).
+
+### Seguridad
+
+- [ ] Headers activos: CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`.
+- [ ] Solo variables de entorno para secretos (sin hardcode en repositorio).
+- [ ] CORS restringido a dominios permitidos en produccion.
+
+### SEO y performance
+
+- [ ] `robots.txt` publicado.
+- [ ] `sitemap.xml` publicado.
+- [ ] `meta description`, canonical y Open Graph en home/catalog.
+- [ ] Lighthouse objetivo inicial: Performance >= 80, Accesibilidad >= 95, Best Practices >= 90, SEO >= 85.
+
+### Observabilidad
+
+- [ ] `GET /health/deep` operativo.
+- [ ] `GET /metrics` y `GET /metrics?format=prometheus` operativos.
+- [ ] Logs de gateway con `x-request-id` y latencia por request.
+
 ## Runbook de operacion
 
 ### Arranque
