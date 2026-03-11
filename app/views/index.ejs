@@ -1,6 +1,6 @@
 <%- include('partials/header', { titulo, categorias }) %>
 
-<% const currency = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); %>
+<% const currency = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }); %>
 
 <section class="hero">
   <h1>Bienvenido a Nuestra Tienda</h1>
@@ -43,7 +43,7 @@
             <p class="product-description"><%= (prod.descripcion || '').slice(0, 80) %>...</p>
 
             <div class="product-footer">
-              <span class="price">$<%= currency.format(Number(prod.precio || 0)) %></span>
+              <span class="price"><%= currency.format(Number(prod.precio || 0)) %></span>
               <a href="/producto/<%= prod.id %>" class="btn btn-primary">Ver Detalle</a>
             </div>
           </div>

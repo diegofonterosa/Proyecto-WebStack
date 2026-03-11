@@ -1,7 +1,7 @@
 <%- include('partials/header', { titulo, categorias }) %>
 
 <%
-  const currency = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const currency = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
   const get = (obj, key, methodName) => {
     if (!obj) return null;
     if (typeof obj[methodName] === 'function') return obj[methodName]();
@@ -39,7 +39,7 @@
         </div>
 
         <div class="precio">
-          <h2>$<%= currency.format(precio) %></h2>
+          <h2><%= currency.format(precio) %></h2>
         </div>
 
         <div class="descripcion">
@@ -85,7 +85,7 @@
             </div>
             <div class="product-info">
               <h3><%= prod.nombre %></h3>
-              <span class="price">$<%= currency.format(Number(prod.precio || 0)) %></span>
+              <span class="price"><%= currency.format(Number(prod.precio || 0)) %></span>
               <a href="/producto/<%= prod.id %>" class="btn btn-primary btn-small">Ver</a>
             </div>
           </div>
