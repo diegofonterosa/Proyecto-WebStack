@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= titulo %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: "Work Sans", sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900">
+  <main class="max-w-6xl mx-auto px-4 py-10">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold">Integracion Stitch</h1>
+      <p class="text-slate-600 mt-2">Pantallas registradas y disponibles por ruta para avance de implementacion.</p>
+    </header>
+
+    <section class="mb-10">
+      <h2 class="text-xl font-semibold mb-3">Storefront</h2>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <% storefront.forEach((item) => { %>
+          <a href="/stitch/<%= item.slug %>" class="block bg-white border border-slate-200 rounded-lg px-4 py-3 hover:border-sky-400 hover:bg-sky-50 transition-colors">
+            <p class="font-medium"><%= item.title %></p>
+            <p class="text-xs text-slate-500 mt-1">/stitch/<%= item.slug %></p>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold mb-3">Admin y CMS</h2>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <% admin.forEach((item) => { %>
+          <a href="/stitch/<%= item.slug %>" class="block bg-white border border-slate-200 rounded-lg px-4 py-3 hover:border-sky-400 hover:bg-sky-50 transition-colors">
+            <p class="font-medium"><%= item.title %></p>
+            <p class="text-xs text-slate-500 mt-1">/stitch/<%= item.slug %></p>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

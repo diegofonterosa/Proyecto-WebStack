@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= titulo %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: "Work Sans", sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+  <main class="max-w-5xl mx-auto px-4 py-10">
+    <a href="/stitch" class="inline-flex items-center text-sm text-sky-700 hover:underline mb-5">Volver al hub</a>
+
+    <% if (!screen) { %>
+      <div class="bg-white border border-slate-200 rounded-xl p-8">
+        <h1 class="text-2xl font-bold">Pantalla no encontrada</h1>
+        <p class="text-slate-600 mt-2">El slug solicitado no existe en la integracion Stitch.</p>
+      </div>
+    <% } else { %>
+      <div class="bg-white border border-slate-200 rounded-xl p-8">
+        <span class="inline-flex text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700 uppercase"><%= screen.section %></span>
+        <h1 class="text-2xl font-bold mt-3"><%= screen.title %></h1>
+        <p class="text-slate-600 mt-2">Ruta integrada para esta pantalla: <strong>/stitch/<%= screen.slug %></strong>.</p>
+
+        <div class="mt-6 p-5 rounded-lg border border-dashed border-slate-300 bg-slate-50">
+          <p class="font-medium">Estado: estructura integrada en el proyecto</p>
+          <p class="text-sm text-slate-600 mt-2">Esta ruta ya esta disponible y registrada. Si quieres, en el siguiente paso inserto el HTML completo de Stitch por cada pantalla en sus vistas definitivas de storefront/admin.</p>
+        </div>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

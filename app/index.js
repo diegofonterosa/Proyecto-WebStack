@@ -32,6 +32,8 @@ const verifyToken = (req, res, next) => {
 		req.path === '/' ||
 		req.path === '/login' ||
 		req.path === '/register' ||
+		req.path === '/stitch' ||
+		req.path.startsWith('/stitch/') ||
 		/^\/producto\/\d+$/.test(req.path) ||
 		req.path === '/health' ||
 		req.path === '/metrics' ||
@@ -79,6 +81,30 @@ const fetchServiceJson = async (url) => {
 
 	return json;
 };
+
+const stitchScreens = [
+	{ slug: 'home', title: 'Milfshakes E-commerce Homepage', section: 'storefront' },
+	{ slug: 'catalog', title: 'Milfshakes Product Catalog', section: 'storefront' },
+	{ slug: 'cart', title: 'Milfshakes Shopping Cart View', section: 'storefront' },
+	{ slug: 'checkout', title: 'Milfshakes Secure Checkout Page', section: 'storefront' },
+	{ slug: 'ssl-dashboard', title: 'SSL Certificate Management Dashboard', section: 'admin' },
+	{ slug: 'admin-dashboard', title: 'Milfshakes CMS Admin Dashboard Overview', section: 'admin' },
+	{ slug: 'products-dashboard', title: 'CMS Product Management Dashboard', section: 'admin' },
+	{ slug: 'product-editor', title: 'CMS Product Editor Interface', section: 'admin' },
+	{ slug: 'add-product', title: 'CMS Add New Product Form', section: 'admin' },
+	{ slug: 'product-variants', title: 'CMS Product Variant Management View', section: 'admin' },
+	{ slug: 'media-library', title: 'CMS Media Library Manager', section: 'admin' },
+	{ slug: 'orders-dashboard', title: 'Milfshakes CMS Order Management', section: 'admin' },
+	{ slug: 'orders-view', title: 'Milfshakes CMS Order Management View', section: 'admin' },
+	{ slug: 'customers-crm', title: 'Milfshakes CMS Customer CRM List', section: 'admin' },
+	{ slug: 'low-stock-alerts', title: 'CMS Low Stock Alert Settings', section: 'admin' },
+	{ slug: 'best-selling-report', title: 'CMS Best Selling Products Report', section: 'admin' },
+	{ slug: 'global-settings', title: 'CMS Store Global Settings', section: 'admin' },
+	{ slug: 'marketing-promotions', title: 'CMS Marketing & Promotions Manager', section: 'admin' },
+	{ slug: 'roles-permissions', title: 'CMS User Roles & Permissions', section: 'admin' }
+];
+
+const stitchScreensBySlug = new Map(stitchScreens.map((screen) => [screen.slug, screen]));
 
 app.get('/', async (req, res, next) => {
 	try {
@@ -183,6 +209,33 @@ app.get('/login', async (req, res) => {
 	res.render('login', {
 		titulo: 'Iniciar Sesion',
 		categorias
+	});
+});
+
+app.get('/stitch', (req, res) => {
+	const storefront = stitchScreens.filter((screen) => screen.section === 'storefront');
+	const admin = stitchScreens.filter((screen) => screen.section === 'admin');
+
+	res.render('stitch/index', {
+		titulo: 'Stitch Screens',
+		storefront,
+		admin
+	});
+});
+
+app.get('/stitch/:slug', (req, res) => {
+	const screen = stitchScreensBySlug.get(req.params.slug);
+
+	if (!screen) {
+		return res.status(404).render('stitch/screen', {
+			titulo: 'Pantalla no encontrada',
+			screen: null
+		});
+	}
+
+	return res.render('stitch/screen', {
+		titulo: screen.title,
+		screen
 	});
 });
 
