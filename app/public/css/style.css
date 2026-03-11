@@ -1739,3 +1739,231 @@ body {
         width: 100%;
     }
 }
+
+/* =============================================================================
+   VISUAL REFRESH 2026 - PHASE 4 (DETAIL + FOOTER + MOTION)
+   ============================================================================= */
+
+.producto-container {
+    background: #fff;
+    border: 2px solid #ffd8c7;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+.producto-imagen {
+    position: relative;
+    border: 2px solid #ffe7dc;
+    border-radius: 18px;
+    background: #fff7f2;
+}
+
+.product-detail-sticker {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #111;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    transform: rotate(-8deg);
+}
+
+.detail-kicker {
+    display: inline-flex;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: #fff1e8;
+    color: #b24722;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.45px;
+}
+
+.producto-datos h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.9rem;
+    line-height: 0.95;
+    letter-spacing: 0.7px;
+}
+
+.product-meta {
+    flex-wrap: wrap;
+}
+
+.category {
+    background: #121212;
+    color: #fff;
+}
+
+.stock.available {
+    background: #0c9e63;
+}
+
+.precio h2 {
+    font-size: 2.35rem;
+}
+
+.form-agregar {
+    border: 2px solid #ffe2d4;
+    border-radius: 16px;
+    padding: 16px;
+    background: #fff9f4;
+}
+
+.detail-info-box {
+    border: 2px solid #ffdaca;
+    background: #fff4ec;
+}
+
+.related-products h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 0.6px;
+    margin-bottom: 18px;
+}
+
+.footer {
+    margin-top: 70px;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(255, 119, 78, 0.18), transparent 36%),
+        #1b1b1b;
+}
+
+.footer-content {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.footer-section h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.7px;
+    font-size: 1.45rem;
+}
+
+.footer-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.footer-tags span {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.footer-socials {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-socials a {
+    display: inline-flex;
+    width: fit-content;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    padding: 4px 10px;
+}
+
+.hero,
+.product-card,
+.auth-form,
+.summary-box,
+.producto-container {
+    animation: riseIn 0.5s ease both;
+}
+
+.hero-actions .btn,
+.product-footer .btn,
+.summary-box .btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.hero-actions .btn:hover,
+.product-footer .btn:hover,
+.summary-box .btn:hover {
+    transform: translateY(-2px);
+}
+
+@keyframes riseIn {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 992px) {
+    .footer-content {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .producto-container {
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .producto-datos h1 {
+        font-size: 2.2rem;
+    }
+
+    .precio h2 {
+        font-size: 1.9rem;
+    }
+}
+
+@media (max-width: 560px) {
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* =============================================================================
+   ACCESSIBILITY POLISH
+   ============================================================================= */
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.btn:focus-visible,
+.dropbtn:focus-visible {
+    outline: 3px solid #0ea5e9;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px rgba(14, 165, 233, 0.2);
+}
+
+.navbar-links a:focus-visible,
+.dropdown-content a:focus-visible {
+    border-radius: 10px;
+}

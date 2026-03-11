@@ -26,9 +26,11 @@
     <div class="producto-container">
       <div class="producto-imagen">
         <img src="<%= imagen %>" alt="<%= nombre %>" class="main-image" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
+        <span class="product-detail-sticker"><%= (categoria || 'Top').toUpperCase() %></span>
       </div>
 
       <div class="producto-datos">
+        <span class="detail-kicker">Elegido por clientes activos</span>
         <h1><%= nombre %></h1>
 
         <div class="product-meta">
@@ -61,7 +63,7 @@
           <div class="alert alert-warning">Este producto no esta disponible en este momento</div>
         <% } %>
 
-        <div class="info-box">
+        <div class="info-box detail-info-box">
           <h3>Informacion de Compra</h3>
           <ul>
             <li>Envio rapido y seguro</li>

@@ -165,3 +165,7 @@ Para frontend local Vite, usar `archive/frontend`.
 
 La documentacion historica y extendida se conserva en `archive/`.
 
+Guia visual recomendada para iteraciones UI:
+
+- `archive/UI-STYLEGUIDE.md`
+
