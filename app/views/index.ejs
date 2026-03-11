@@ -3,8 +3,13 @@
 <% const currency = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }); %>
 
 <section class="hero">
-  <h1>Bienvenido a Nuestra Tienda</h1>
-  <p>Encuentra los mejores productos deportivos y de moda</p>
+  <span class="hero-kicker">Sabor, energia y estilo</span>
+  <h1>Tu tienda con actitud</h1>
+  <p>Descubre productos top para moverte mejor, vestir mejor y sentirte en modo pro.</p>
+  <div class="hero-actions">
+    <a href="#catalogo" class="btn btn-hero-primary">Explorar catalogo</a>
+    <a href="/carrito" class="btn btn-hero-outline">Ver carrito</a>
+  </div>
 </section>
 
 <section class="filters">
@@ -19,7 +24,7 @@
   </div>
 </section>
 
-<section class="products">
+<section class="products" id="catalogo">
   <h2>Catalogo</h2>
 
   <% if (!productos || productos.length === 0) { %>
