@@ -146,6 +146,10 @@
           message.textContent = 'Producto agregado al carrito.';
           message.className = 'alert alert-success';
         }
+
+        if (typeof window.refreshCartCount === 'function') {
+          window.refreshCartCount();
+        }
       } catch (error) {
         if (message) {
           message.textContent = error.message;

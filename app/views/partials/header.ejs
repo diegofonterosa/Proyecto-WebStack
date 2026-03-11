@@ -21,7 +21,10 @@
 
         <div class="navbar-links">
           <a href="/">Inicio</a>
-          <a href="/carrito" class="carrito-btn">Carrito</a>
+          <a href="/carrito" class="carrito-btn">
+            Carrito
+            <span id="nav-cart-count" class="carrito-count" style="display:none;">0</span>
+          </a>
           <a href="/login" id="nav-login-link">Login</a>
           <a href="/register" id="nav-register-link">Registrarse</a>
           <a href="#" id="nav-logout-link" style="display:none;">Cerrar sesion</a>
@@ -45,6 +48,53 @@
       const loginLink = document.getElementById('nav-login-link');
       const registerLink = document.getElementById('nav-register-link');
       const logoutLink = document.getElementById('nav-logout-link');
+      const cartCount = document.getElementById('nav-cart-count');
+
+      const setCartCount = function (count) {
+        if (!cartCount) {
+          return;
+        }
+
+        const safeCount = Number.isFinite(count) ? Math.max(0, count) : 0;
+        if (safeCount > 0) {
+          cartCount.textContent = String(safeCount);
+          cartCount.style.display = 'flex';
+          return;
+        }
+
+        cartCount.textContent = '0';
+        cartCount.style.display = 'none';
+      };
+
+      const refreshCartCount = async function () {
+        if (!token) {
+          setCartCount(0);
+          return;
+        }
+
+        try {
+          const response = await fetch('/api/carrito', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+
+          if (!response.ok) {
+            setCartCount(0);
+            return;
+          }
+
+          const data = await response.json();
+          const items = Array.isArray(data.items) ? data.items : [];
+          const totalItems = items.reduce(function (sum, item) {
+            return sum + (Number(item.cantidad) || 0);
+          }, 0);
+
+          setCartCount(totalItems);
+        } catch {
+          setCartCount(0);
+        }
+      };
+
+      window.refreshCartCount = refreshCartCount;
 
       if (token) {
         if (loginLink) loginLink.style.display = 'none';
@@ -52,10 +102,13 @@
         if (logoutLink) logoutLink.style.display = '';
       }
 
+      refreshCartCount();
+
       if (logoutLink) {
         logoutLink.addEventListener('click', function (event) {
           event.preventDefault();
           localStorage.removeItem('token');
+          setCartCount(0);
           window.location.href = '/';
         });
       }

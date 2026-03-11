@@ -172,6 +172,10 @@
         setMessage('Compra realizada con exito. Pedido #' + data.pedido_id, 'alert-success');
         content.style.display = 'none';
         emptyState.style.display = '';
+
+        if (typeof window.refreshCartCount === 'function') {
+          window.refreshCartCount();
+        }
       } catch (error) {
         setMessage(error.message, 'alert-error');
       } finally {
