@@ -106,61 +106,82 @@
 <script>
   const SHIPPING = 5.00;
   const TAX_RATE = 0.09;
+  let carritoItems = [];
+  const pendingItemIds = new Set();
 
-  async function loadCarrito() {
+  function renderCarrito() {
     const loader = document.getElementById('cart-loader');
     const itemsContainer = document.getElementById('cart-items');
     const emptyMsg = document.getElementById('empty-cart');
     const errorMsg = document.getElementById('cart-error');
 
-    try {
-      const response = await getCarrito();
-      const items = response.datos || response.items || [];
+    loader.style.display = 'none';
+    errorMsg.style.display = 'none';
 
-      loader.style.display = 'none';
+    if (carritoItems.length === 0) {
+      itemsContainer.style.display = 'none';
+      itemsContainer.innerHTML = '';
+      emptyMsg.style.display = 'block';
+      document.getElementById('subtotal').textContent = '$0.00';
+      document.getElementById('tax').textContent = '$0.00';
+      document.getElementById('total').textContent = '$0.00';
+      return;
+    }
 
-      if (items.length === 0) {
-        emptyMsg.style.display = 'block';
-        return;
-      }
+    emptyMsg.style.display = 'none';
+    itemsContainer.style.display = 'flex';
 
-      itemsContainer.style.display = 'flex';
+    let html = '';
+    let subtotal = 0;
 
-      let html = '';
-      let subtotal = 0;
+    carritoItems.forEach(item => {
+      const itemId = Number(item.id);
+      const isPending = pendingItemIds.has(itemId);
+      const itemPrice = parseFloat(item.precio || item.price || 0);
+      const itemQuantity = parseInt(item.cantidad || item.quantity || 1);
+      const itemTotal = itemPrice * itemQuantity;
+      subtotal += itemTotal;
 
-      items.forEach(item => {
-        const itemPrice = parseFloat(item.precio || item.price || 0);
-        const itemQuantity = parseInt(item.cantidad || item.quantity || 1);
-        const itemTotal = itemPrice * itemQuantity;
-        subtotal += itemTotal;
+      const imagenUrl = item.imagen_url || item.image_url || '/images/placeholder.svg';
 
-        const imagenUrl = item.imagen_url || item.image_url || '/images/placeholder.svg';
-
-        html += `
-          <div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
-            <div class="flex items-start gap-4 flex-1 w-full">
-              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style="background-image: url('${imagenUrl}'); background-size: cover;"></div>
-              <div class="flex flex-col justify-center h-full">
-                <h3 class="text-lg font-bold leading-normal">${escapeHtml(item.nombre || item.name)}</h3>
-                <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal mt-1">Cantidad: ${itemQuantity}</p>
-                <p class="text-primary font-semibold text-base mt-2">$${itemPrice.toFixed(2)}</p>
+      html += `
+        <div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
+          <div class="flex items-start gap-4 flex-1 w-full">
+            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style="background-image: url('${imagenUrl}'); background-size: cover;"></div>
+            <div class="flex flex-col justify-center h-full">
+              <h3 class="text-lg font-bold leading-normal">${escapeHtml(item.nombre || item.name)}</h3>
+              <div class="mt-2 inline-flex items-center gap-2">
+                <button ${isPending ? 'disabled' : ''} onclick="cambiarCantidad(${itemId}, ${itemQuantity - 1})" class="h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 ${isPending ? 'opacity-50 cursor-not-allowed' : ''}">-</button>
+                <span class="min-w-8 text-center text-sm font-semibold">${itemQuantity}</span>
+                <button ${isPending ? 'disabled' : ''} onclick="cambiarCantidad(${itemId}, ${itemQuantity + 1})" class="h-8 w-8 rounded-md border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 ${isPending ? 'opacity-50 cursor-not-allowed' : ''}">+</button>
               </div>
+              <p class="text-primary font-semibold text-base mt-2">$${itemPrice.toFixed(2)}</p>
             </div>
-            <button onclick="eliminarDelCarrito(${Number(item.id)})" class="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors">Eliminar</button>
           </div>
-        `;
-      });
+          <button ${isPending ? 'disabled' : ''} onclick="eliminarDelCarrito(${itemId})" class="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors ${isPending ? 'opacity-50 cursor-not-allowed' : ''}">${isPending ? 'Procesando...' : 'Eliminar'}</button>
+        </div>
+      `;
+    });
 
-      itemsContainer.innerHTML = html;
+    itemsContainer.innerHTML = html;
 
-      // Calcular totales
-      const tax = subtotal * TAX_RATE;
-      const total = subtotal + SHIPPING + tax;
+    const tax = subtotal * TAX_RATE;
+    const total = subtotal + SHIPPING + tax;
+    document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+  }
 
-      document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
-      document.getElementById('tax').textContent = '$' + tax.toFixed(2);
-      document.getElementById('total').textContent = '$' + total.toFixed(2);
+  async function loadCarrito() {
+    const loader = document.getElementById('cart-loader');
+    const errorMsg = document.getElementById('cart-error');
+
+    try {
+      loader.style.display = 'flex';
+      errorMsg.style.display = 'none';
+      const response = await getCarrito();
+      carritoItems = response.datos || response.items || [];
+      renderCarrito();
 
     } catch (error) {
       loader.style.display = 'none';
@@ -173,7 +194,7 @@
   function proceedToCheckout() {
     const token = getAuthToken();
     if (!token) {
-      alert('Por favor inicia sesión para continuar');
+      showToast('Por favor inicia sesión para continuar', 'info');
       window.location.href = '/login';
       return;
     }
@@ -182,16 +203,58 @@
 
   async function eliminarDelCarrito(itemId) {
     if (!itemId) return;
+    if (pendingItemIds.has(Number(itemId))) return;
+    pendingItemIds.add(Number(itemId));
+    renderCarrito();
     try {
       await apiCall(`/carrito/${itemId}`, { method: 'DELETE' });
-      await loadCarrito();
+      carritoItems = carritoItems.filter((item) => Number(item.id) !== Number(itemId));
     } catch (error) {
-      alert('No se pudo eliminar el producto del carrito');
+      showToast('No se pudo eliminar el producto del carrito', 'error');
+    } finally {
+      pendingItemIds.delete(Number(itemId));
+      renderCarrito();
+    }
+  }
+
+  async function cambiarCantidad(itemId, nuevaCantidad) {
+    if (!itemId) return;
+    if (pendingItemIds.has(Number(itemId))) return;
+    if (nuevaCantidad < 1) {
+      await eliminarDelCarrito(itemId);
+      return;
+    }
+
+    pendingItemIds.add(Number(itemId));
+    renderCarrito();
+    try {
+      await apiCall(`/carrito/${itemId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ cantidad: nuevaCantidad })
+      });
+
+      carritoItems = carritoItems.map((item) => {
+        if (Number(item.id) !== Number(itemId)) {
+          return item;
+        }
+
+        return {
+          ...item,
+          cantidad: nuevaCantidad,
+          quantity: nuevaCantidad
+        };
+      });
+    } catch (error) {
+      showToast('No se pudo actualizar la cantidad', 'error');
+    } finally {
+      pendingItemIds.delete(Number(itemId));
+      renderCarrito();
     }
   }
 
   // Cargar carrito cuando carga la página
   window.eliminarDelCarrito = eliminarDelCarrito;
+  window.cambiarCantidad = cambiarCantidad;
   document.addEventListener('DOMContentLoaded', loadCarrito);
 </script>
 <script src="/stitch-screens/nav.js"></script>

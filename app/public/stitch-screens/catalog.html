@@ -543,9 +543,9 @@ Quick Add
     async function agregarAlCarritoUI(productoId) {
         try {
             await agregarAlCarrito(productoId, 1);
-            alert('Producto agregado al carrito');
+            showToast('Producto agregado al carrito', 'success');
         } catch (error) {
-            alert('No se pudo agregar al carrito');
+            showToast('No se pudo agregar al carrito', 'error');
         }
     }
 

@@ -6,6 +6,55 @@
 const API_BASE_URL = '/api';
 
 /**
+ * Mostrar toast no bloqueante
+ * @param {string} message
+ * @param {'success'|'error'|'info'} type
+ */
+function showToast(message, type = 'info') {
+  const id = 'stitch-toast-container';
+  let container = document.getElementById(id);
+
+  if (!container) {
+    container = document.createElement('div');
+    container.id = id;
+    container.style.position = 'fixed';
+    container.style.top = '16px';
+    container.style.right = '16px';
+    container.style.zIndex = '10000';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '8px';
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  const colors = {
+    success: { bg: '#dcfce7', fg: '#166534', border: '#86efac' },
+    error: { bg: '#fee2e2', fg: '#991b1b', border: '#fca5a5' },
+    info: { bg: '#dbeafe', fg: '#1e40af', border: '#93c5fd' }
+  };
+  const c = colors[type] || colors.info;
+
+  toast.textContent = message;
+  toast.style.background = c.bg;
+  toast.style.color = c.fg;
+  toast.style.border = `1px solid ${c.border}`;
+  toast.style.borderRadius = '10px';
+  toast.style.padding = '10px 12px';
+  toast.style.fontSize = '14px';
+  toast.style.fontWeight = '600';
+  toast.style.boxShadow = '0 8px 20px rgba(15,23,42,0.12)';
+
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.remove();
+    if (container && container.children.length === 0) {
+      container.remove();
+    }
+  }, 2600);
+}
+
+/**
  * Obtener token JWT del localStorage
  */
 function getAuthToken() {
@@ -285,9 +334,9 @@ function escapeHtml(text) {
 async function agregarAlCarritoUI(productoId) {
   try {
     const result = await agregarAlCarrito(productoId, 1);
-    alert('Producto agregado al carrito');
+    showToast('Producto agregado al carrito', 'success');
   } catch (error) {
-    alert('Error al agregar al carrito: ' + (error.message || 'Error desconocido'));
+    showToast('Error al agregar al carrito: ' + (error.message || 'Error desconocido'), 'error');
   }
 }
 
@@ -300,10 +349,10 @@ async function deleteProducto(productoId) {
   }
   try {
     const result = await apiCall(`/productos/${productoId}`, { method: 'DELETE' });
-    alert('Producto eliminado');
+    showToast('Producto eliminado', 'success');
     location.reload(); // Recargar página
   } catch (error) {
-    alert('Error al eliminar: ' + (error.message || 'Error desconocido'));
+    showToast('Error al eliminar: ' + (error.message || 'Error desconocido'), 'error');
   }
 }
 
