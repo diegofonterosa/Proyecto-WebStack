@@ -15,11 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../../database/db.php';
-
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = str_replace('/services/order-service/src', '', $path);
 $path = str_replace('/api', '', $path);
+$path = rtrim($path, '/');
+$path = $path === '' ? '/' : $path;
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Verificar autenticación

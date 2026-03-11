@@ -15,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../../database/db.php';
-
 // Obtener ruta solicitada
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = str_replace('/services/auth-service/src', '', $path);
 $path = str_replace('/api', '', $path);
+$path = rtrim($path, '/');
+$path = $path === '' ? '/' : $path;
 $method = $_SERVER['REQUEST_METHOD'];
 
 // RUTAS
@@ -28,17 +28,18 @@ try {
     // POST /login
     if ($path === '/login' && $method === 'POST') {
         $input = json_decode(file_get_contents('php://input'), true);
+        $password = $input['contrasena'] ?? ($input['contraseña'] ?? null);
         
-        if (!isset($input['email']) || !isset($input['contraseña'])) {
+        if (!isset($input['email']) || !$password) {
             throw new Exception('Email y contraseña requeridos', 400);
         }
 
         $pdo = getDatabase();
-        $stmt = $pdo->prepare('SELECT id, nombre, email, contraseña, rol FROM usuarios WHERE email = ?');
+        $stmt = $pdo->prepare('SELECT id, nombre, email, contrasena, rol FROM usuarios WHERE email = ?');
         $stmt->execute([$input['email']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$user || !password_verify($input['contraseña'], $user['contraseña'])) {
+        if (!$user || !password_verify($password, $user['contrasena'])) {
             throw new Exception('Credenciales inválidas', 401);
         }
 
@@ -62,8 +63,9 @@ try {
     // POST /register
     if ($path === '/register' && $method === 'POST') {
         $input = json_decode(file_get_contents('php://input'), true);
+        $password = $input['contrasena'] ?? ($input['contraseña'] ?? null);
 
-        if (!isset($input['nombre']) || !isset($input['email']) || !isset($input['contraseña'])) {
+        if (!isset($input['nombre']) || !isset($input['email']) || !$password) {
             throw new Exception('Faltan campos requeridos', 400);
         }
 
@@ -81,8 +83,8 @@ try {
         }
 
         // Crear usuario
-        $hash = password_hash($input['contraseña'], PASSWORD_BCRYPT, ['cost' => 12]);
-        $stmt = $pdo->prepare('INSERT INTO usuarios (nombre, email, contraseña, rol) VALUES (?, ?, ?, ?)');
+        $hash = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+        $stmt = $pdo->prepare('INSERT INTO usuarios (nombre, email, contrasena, rol) VALUES (?, ?, ?, ?)');
         $stmt->execute([$input['nombre'], $input['email'], $hash, 'cliente']);
 
         $userId = $pdo->lastInsertId();

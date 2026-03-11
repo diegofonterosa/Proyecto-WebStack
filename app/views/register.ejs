@@ -94,8 +94,7 @@
       }
 
       try {
-        const payload = { nombre: nombre, email: email };
-        payload['contrase\u00f1a'] = contrasena;
+        const payload = { nombre: nombre, email: email, contrasena: contrasena };
 
         const response = await fetch('/api/auth/register', {
           method: 'POST',

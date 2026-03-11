@@ -48,7 +48,7 @@
         </div>
 
         <% if (stock > 0) { %>
-          <form action="/carrito/agregar" method="POST" class="form-agregar">
+          <form id="add-to-cart-form" class="form-agregar" novalidate>
             <div class="form-group">
               <label for="cantidad">Cantidad:</label>
               <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="<%= stock %>" required>
@@ -56,6 +56,7 @@
             <input type="hidden" name="producto_id" value="<%= id %>">
             <button type="submit" class="btn btn-success btn-large">Agregar al Carrito</button>
           </form>
+          <p id="cart-message" aria-live="polite"></p>
         <% } else { %>
           <div class="alert alert-warning">Este producto no esta disponible en este momento</div>
         <% } %>
@@ -95,5 +96,64 @@
 <% } else { %>
   <div class="alert alert-error">Producto no encontrado</div>
 <% } %>
+
+<script>
+  (function () {
+    const form = document.getElementById('add-to-cart-form');
+    const message = document.getElementById('cart-message');
+
+    if (!form) {
+      return;
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault();
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const cantidad = Number.parseInt(form.cantidad.value, 10) || 1;
+      const productoId = Number.parseInt(form.producto_id.value, 10);
+
+      if (message) {
+        message.textContent = '';
+        message.className = '';
+      }
+
+      try {
+        const response = await fetch('/api/carrito/agregar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            producto_id: productoId,
+            cantidad: cantidad
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'No se pudo agregar el producto al carrito.');
+        }
+
+        if (message) {
+          message.textContent = 'Producto agregado al carrito.';
+          message.className = 'alert alert-success';
+        }
+      } catch (error) {
+        if (message) {
+          message.textContent = error.message;
+          message.className = 'alert alert-error';
+        }
+      }
+    });
+  })();
+</script>
 
 <%- include('partials/footer') %>

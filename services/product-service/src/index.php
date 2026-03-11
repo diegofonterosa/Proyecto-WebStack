@@ -15,11 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../../database/db.php';
-
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $path = str_replace('/services/product-service/src', '', $path);
 $path = str_replace('/api', '', $path);
+$path = rtrim($path, '/');
+$path = $path === '' ? '/' : $path;
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
@@ -31,14 +31,19 @@ try {
         $limit = (int)($_GET['limit'] ?? 12);
         $offset = ($page - 1) * $limit;
 
-        $stmt = $pdo->prepare('
+        $page = max($page, 1);
+        $limit = max(min($limit, 100), 1);
+        $offset = max($offset, 0);
+
+        $sql = "
             SELECT id, nombre, descripcion, precio, stock, categoria, imagen_url
-            FROM productos 
-            WHERE activo = 1 
-            ORDER BY fecha_creacion DESC 
-            LIMIT ? OFFSET ?
-        ');
-        $stmt->execute([$limit, $offset]);
+            FROM productos
+            WHERE activo = 1
+            ORDER BY fecha_creacion DESC
+            LIMIT $limit OFFSET $offset
+        ";
+
+        $stmt = $pdo->query($sql);
         $productos = $stmt->fetchAll();
 
         $countStmt = $pdo->query('SELECT COUNT(*) as total FROM productos WHERE activo = 1');

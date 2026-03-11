@@ -1,0 +1,185 @@
+<%- include('partials/header', { titulo, categorias }) %>
+
+<section class="carrito-section">
+  <h1>Carrito de Compras</h1>
+
+  <div id="cart-login-required" class="alert alert-info" style="display:none;">
+    Debes <a href="/login">iniciar sesion</a> para ver tu carrito.
+  </div>
+
+  <div id="cart-empty" class="empty-cart" style="display:none;">
+    <p>Tu carrito esta vacio</p>
+    <a href="/" class="btn btn-primary">Continuar comprando</a>
+  </div>
+
+  <div id="cart-content" class="cart-container" style="display:none;">
+    <div class="cart-items">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="cart-items-body"></tbody>
+      </table>
+    </div>
+
+    <div class="cart-summary">
+      <div class="summary-box">
+        <h2>Resumen</h2>
+
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span id="summary-subtotal">$0.00</span>
+        </div>
+        <div class="summary-row">
+          <span>Impuesto (IVA 21%):</span>
+          <span id="summary-tax">$0.00</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span id="summary-total">$0.00</span>
+        </div>
+
+        <button id="checkout-btn" type="button" class="btn btn-success btn-large">Completar Compra</button>
+        <a href="/" class="btn btn-outline">Continuar Comprando</a>
+      </div>
+
+      <div class="info-box">
+        <h3>Informacion de Compra</h3>
+        <ul>
+          <li>Conexion segura para tus datos</li>
+          <li>Validacion de stock en checkout</li>
+          <li>Pedido generado al confirmar compra</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <p id="cart-message" aria-live="polite"></p>
+</section>
+
+<script>
+  (function () {
+    const token = localStorage.getItem('token');
+    const loginRequired = document.getElementById('cart-login-required');
+    const emptyState = document.getElementById('cart-empty');
+    const content = document.getElementById('cart-content');
+    const message = document.getElementById('cart-message');
+    const itemsBody = document.getElementById('cart-items-body');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    const currency = new Intl.NumberFormat('es-ES', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+
+    const setMessage = function (text, type) {
+      message.textContent = text || '';
+      message.className = text ? 'alert ' + type : '';
+    };
+
+    const setSummary = function (subtotal) {
+      const tax = subtotal * 0.21;
+      const total = subtotal + tax;
+
+      document.getElementById('summary-subtotal').textContent = '$' + currency.format(subtotal);
+      document.getElementById('summary-tax').textContent = '$' + currency.format(tax);
+      document.getElementById('summary-total').textContent = '$' + currency.format(total);
+    };
+
+    const renderItems = function (items) {
+      itemsBody.innerHTML = '';
+
+      items.forEach(function (item) {
+        const subtotal = Number(item.precio || 0) * Number(item.cantidad || 0);
+        const tr = document.createElement('tr');
+        tr.className = 'cart-item';
+        tr.innerHTML = `
+          <td>
+            <div class="item-name">
+              <img src="${item.imagen_url || '/images/placeholder.jpg'}" alt="${item.nombre || 'Producto'}">
+              <a href="/producto/${item.producto_id}">${item.nombre || 'Producto'}</a>
+            </div>
+          </td>
+          <td>$${currency.format(Number(item.precio || 0))}</td>
+          <td>${item.cantidad}</td>
+          <td class="subtotal">$${currency.format(subtotal)}</td>
+        `;
+        itemsBody.appendChild(tr);
+      });
+    };
+
+    const loadCart = async function () {
+      if (!token) {
+        loginRequired.style.display = '';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/carrito', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'No se pudo cargar el carrito.');
+        }
+
+        const items = Array.isArray(data.items) ? data.items : [];
+
+        if (items.length === 0) {
+          emptyState.style.display = '';
+          return;
+        }
+
+        renderItems(items);
+        setSummary(Number(data.total || 0));
+        content.style.display = '';
+      } catch (error) {
+        setMessage(error.message, 'alert-error');
+      }
+    };
+
+    checkoutBtn.addEventListener('click', async function () {
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      setMessage('', '');
+      checkoutBtn.disabled = true;
+
+      try {
+        const response = await fetch('/api/pedidos/crear', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'No se pudo completar la compra.');
+        }
+
+        setMessage('Compra realizada con exito. Pedido #' + data.pedido_id, 'alert-success');
+        content.style.display = 'none';
+        emptyState.style.display = '';
+      } catch (error) {
+        setMessage(error.message, 'alert-error');
+      } finally {
+        checkoutBtn.disabled = false;
+      }
+    });
+
+    loadCart();
+  })();
+</script>
+
+<%- include('partials/footer') %>

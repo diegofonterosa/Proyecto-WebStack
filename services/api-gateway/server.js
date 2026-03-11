@@ -27,12 +27,18 @@ app.use((req, res, next) => {
 const verifyToken = (req, res, next) => {
     const isPublicPath =
         req.path === '/' ||
+        req.path === '/login' ||
         req.path === '/register' ||
+        req.path === '/carrito' ||
+        req.path === '/search' ||
+        req.path === '/categoria' ||
         /^\/producto\/\d+$/.test(req.path) ||
         req.path === '/health' ||
         req.path === '/metrics' ||
         req.path.startsWith('/api/auth') ||
         req.path.startsWith('/api/productos') ||
+        req.path.startsWith('/api/carrito') ||
+        req.path.startsWith('/api/pedidos') ||
         req.path.startsWith('/api/cms');
 
     if (isPublicPath) {
@@ -127,6 +133,94 @@ app.get('/register', async (req, res) => {
     });
 });
 
+app.get('/login', async (req, res) => {
+    let categorias = [];
+
+    try {
+        const categoriasResp = await fetchServiceJson(`${productServiceUrl}/api/categorias`);
+        categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+    } catch {
+        categorias = [];
+    }
+
+    res.render('login', {
+        titulo: 'Iniciar Sesion',
+        categorias
+    });
+});
+
+app.get('/search', async (req, res, next) => {
+    try {
+        const q = String(req.query.q || '').trim();
+
+        const [resultadosResp, categoriasResp] = await Promise.all([
+            fetchServiceJson(`${productServiceUrl}/api/productos/search?q=${encodeURIComponent(q)}`),
+            fetchServiceJson(`${productServiceUrl}/api/categorias`)
+        ]);
+
+        const productos = Array.isArray(resultadosResp.datos) ? resultadosResp.datos : [];
+        const categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+
+        res.render('index', {
+            titulo: q ? `Resultados para "${q}"` : 'Busqueda de Productos',
+            productos,
+            categorias,
+            page: 1,
+            totalPages: 1
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.get('/categoria', async (req, res, next) => {
+    try {
+        const categoria = String(req.query.c || '').trim();
+
+        const [resultadosResp, categoriasResp] = await Promise.all([
+            fetchServiceJson(`${productServiceUrl}/api/productos/search?categoria=${encodeURIComponent(categoria)}`),
+            fetchServiceJson(`${productServiceUrl}/api/categorias`)
+        ]);
+
+        const productos = Array.isArray(resultadosResp.datos) ? resultadosResp.datos : [];
+        const categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+
+        res.render('index', {
+            titulo: categoria ? `Categoria: ${categoria}` : 'Catalogo de Productos',
+            productos,
+            categorias,
+            page: 1,
+            totalPages: 1
+        });
+    } catch (error) {
+        next(error);
+    }
+});
+
+app.get('/carrito', async (req, res) => {
+    let categorias = [];
+
+    try {
+        const categoriasResp = await fetchServiceJson(`${productServiceUrl}/api/categorias`);
+        categorias = Array.isArray(categoriasResp.datos)
+            ? categoriasResp.datos.map((item) => item.categoria).filter(Boolean)
+            : [];
+    } catch {
+        categorias = [];
+    }
+
+    res.render('carrito', {
+        titulo: 'Carrito',
+        categorias
+    });
+});
+
 app.get('/producto/:id', async (req, res, next) => {
     try {
         const id = Number.parseInt(req.params.id, 10);
@@ -174,7 +268,8 @@ app.get('/producto/:id', async (req, res, next) => {
 const authServiceUrl = `http://${process.env.AUTH_SERVICE_HOST || 'auth-service'}:${process.env.AUTH_SERVICE_PORT || 5001}`;
 app.use('/api/auth', httpProxy(authServiceUrl, {
     proxyReqPathResolver: (req) => {
-        return '/api' + req.url;
+        const suffix = req.url === '/' ? '' : req.url;
+        return '/api' + suffix;
     },
     userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
         return proxyResData;
@@ -185,7 +280,8 @@ app.use('/api/auth', httpProxy(authServiceUrl, {
 const productServiceUrl = `http://${process.env.PRODUCT_SERVICE_HOST || 'product-service'}:${process.env.PRODUCT_SERVICE_PORT || 5002}`;
 app.use('/api/productos', httpProxy(productServiceUrl, {
     proxyReqPathResolver: (req) => {
-        return '/api' + req.url;
+        const suffix = req.url === '/' ? '' : req.url;
+        return '/api/productos' + suffix;
     }
 }));
 
@@ -204,13 +300,15 @@ app.use('/api/cms', httpProxy(strapiUrl, {
 const orderServiceUrl = `http://${process.env.ORDER_SERVICE_HOST || 'order-service'}:${process.env.ORDER_SERVICE_PORT || 5003}`;
 app.use('/api/pedidos', httpProxy(orderServiceUrl, {
     proxyReqPathResolver: (req) => {
-        return '/api' + req.url;
+        const suffix = req.url === '/' ? '' : req.url;
+        return '/api/pedidos' + suffix;
     }
 }));
 
 app.use('/api/carrito', httpProxy(orderServiceUrl, {
     proxyReqPathResolver: (req) => {
-        return '/api' + req.url;
+        const suffix = req.url === '/' ? '' : req.url;
+        return '/api/carrito' + suffix;
     }
 }));
 

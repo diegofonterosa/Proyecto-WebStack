@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    contraseña VARCHAR(255) NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,
     rol ENUM('cliente', 'admin') DEFAULT 'cliente',
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE
@@ -98,7 +98,7 @@ INSERT INTO productos (nombre, descripcion, precio, stock, categoria, imagen_url
 ('Media Compresión Running', 'Medias para mejora de circulación en ejercicio', 24.99, 150, 'ropa', '/images/medias-compresion.jpg');
 
 -- Crear usuario admin
-INSERT INTO usuarios (nombre, email, contraseña, rol) VALUES
+INSERT INTO usuarios (nombre, email, contrasena, rol) VALUES
 ('Admin Tienda', 'admin@tienda.local', '$2y$10$2HFJvvj7R5ZsIx0yP4k4OeWkMlkZJ0ZJV0ZGkZJV0ZGkZJV0ZGkZJ', 'admin'),
 ('Usuario Demo', 'demo@tienda.local', '$2y$10$2HFJvvj7R5ZsIx0yP4k4OeWkMlkZJ0ZJV0ZGkZJV0ZGkZJV0ZGkZJ', 'cliente');
 

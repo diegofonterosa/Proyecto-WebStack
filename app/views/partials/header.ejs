@@ -14,20 +14,22 @@
       </div>
 
       <div class="navbar-menu">
-        <form action="/api/productos/search" method="GET" class="navbar-search">
+        <form action="/search" method="GET" class="navbar-search">
           <input type="text" name="q" placeholder="Buscar productos..." required>
           <button type="submit">Buscar</button>
         </form>
 
         <div class="navbar-links">
           <a href="/">Inicio</a>
-          <a href="/login">Login</a>
-          <a href="/register">Registrarse</a>
+          <a href="/carrito" class="carrito-btn">Carrito</a>
+          <a href="/login" id="nav-login-link">Login</a>
+          <a href="/register" id="nav-register-link">Registrarse</a>
+          <a href="#" id="nav-logout-link" style="display:none;">Cerrar sesion</a>
           <div class="dropdown">
             <button class="dropbtn">Categorias</button>
             <div class="dropdown-content">
               <% (categorias || []).forEach((cat) => { %>
-                <a href="/api/productos/search?categoria=<%= encodeURIComponent(cat) %>"><%= cat %></a>
+                <a href="/categoria?c=<%= encodeURIComponent(cat) %>"><%= cat %></a>
               <% }) %>
             </div>
           </div>
@@ -37,3 +39,25 @@
   </nav>
 
   <main class="container">
+  <script>
+    (function () {
+      const token = localStorage.getItem('token');
+      const loginLink = document.getElementById('nav-login-link');
+      const registerLink = document.getElementById('nav-register-link');
+      const logoutLink = document.getElementById('nav-logout-link');
+
+      if (token) {
+        if (loginLink) loginLink.style.display = 'none';
+        if (registerLink) registerLink.style.display = 'none';
+        if (logoutLink) logoutLink.style.display = '';
+      }
+
+      if (logoutLink) {
+        logoutLink.addEventListener('click', function (event) {
+          event.preventDefault();
+          localStorage.removeItem('token');
+          window.location.href = '/';
+        });
+      }
+    })();
+  </script>

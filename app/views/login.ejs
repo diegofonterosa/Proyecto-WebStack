@@ -54,8 +54,7 @@
       const contrasena = form.contrasena.value;
 
       try {
-        const payload = { email: email };
-        payload['contrase\u00f1a'] = contrasena;
+        const payload = { email: email, contrasena: contrasena };
 
         const response = await fetch('/api/auth/login', {
           method: 'POST',
