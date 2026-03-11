@@ -1,45 +1,97 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Milfshakes E-commerce Homepage</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: "Work Sans", sans-serif; }
-  </style>
-</head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
-  <header class="sticky top-0 bg-white border-b border-slate-200 z-10">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div>
-        <p class="text-xs uppercase tracking-wide text-slate-500">storefront</p>
-        <h1 class="font-bold text-lg">Milfshakes E-commerce Homepage</h1>
-      </div>
-      <a href="/stitch" class="text-sm text-sky-700 hover:underline">Volver al hub</a>
-    </div>
-  </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-8">
-    <section class="bg-white border border-slate-200 rounded-xl p-8">
-      <h2 class="text-2xl font-bold">Milfshakes E-commerce Homepage</h2>
-      <p class="text-slate-600 mt-2">Pantalla integrada en ruta final del proyecto.</p>
-      <div class="mt-6 grid sm:grid-cols-3 gap-4">
-        <article class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <p class="text-xs uppercase text-slate-500">Slug</p>
-          <p class="font-semibold mt-1">home</p>
-        </article>
-        <article class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <p class="text-xs uppercase text-slate-500">Ruta</p>
-          <p class="font-semibold mt-1">/stitch/home</p>
-        </article>
-        <article class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <p class="text-xs uppercase text-slate-500">Estado</p>
-          <p class="font-semibold mt-1 text-emerald-700">Activa</p>
-        </article>
-      </div>
-    </section>
-  </main>
-</body>
-</html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Milfshakes E-commerce Homepage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ee2b6c",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#221016",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d1b22",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display min-h-screen flex flex-col">
+<div class="layout-container flex h-full grow flex-col">
+<header class="sticky top-0 z-50 bg-surface-light/90 dark:bg-surface-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 md:px-10">
+<div class="mx-auto max-w-[1440px] flex items-center justify-between gap-4">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl">checkroom</span>
+<h2 class="text-slate-900 dark:text-white text-xl font-bold tracking-tight">Milfshakes</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary text-sm font-medium transition-colors" href="#">Shop</a>
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary text-sm font-medium transition-colors" href="#">Collections</a>
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary text-sm font-medium transition-colors" href="#">About</a>
+<a class="text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-primary text-sm font-medium transition-colors" href="#">Contact</a>
+</nav>
+<div class="flex items-center gap-4">
+<label class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-3 h-10 w-64 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+<span class="material-symbols-outlined text-slate-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full text-slate-900 dark:text-white placeholder-slate-400" placeholder="Search..." type="text"/>
+</label>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 w-full max-w-[1440px] mx-auto px-4 md:px-10 py-6">
+<section class="relative rounded-lg overflow-hidden min-h-[500px] flex items-center justify-center mb-12 group">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAj-Nrsy8Z9ybj2JwZSS5_b_C5pT568Osldvgd-8kyx8PbtEBV8RF70XdbFNA3pROsGWh6-TlvbPGS8SwY7I4OcQ_A3hPc226TQxmZpfG6x-76Hj1FwMXmhz4Wxg0uR-N4MPSJTKvGMpDTvUymovvYAcG5y4uZXV9s8JPTLb01eXLYXLHDYhzgwoCLgmB3Sw0Ps_AxLC1Jr3803LGmguXFipzuw7mgongSnr65Xng7G6nKUdEjmpmdMQo3LlSl_Y0Tz3hJ-_5LtdXg');"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+<div class="relative z-10 text-center text-white px-4 max-w-3xl mx-auto flex flex-col items-center gap-6">
+<span class="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold tracking-wide uppercase border border-white/30">New Collection 2024</span>
+<h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-tight">Shake Up Your <br/><span class="text-primary">Wardrobe</span></h1>
+<p class="text-lg md:text-xl text-slate-100 max-w-xl font-medium">Trendy styles for the modern lifestyle. Discover the new collection today and redefine your look.</p>
+<div class="flex gap-4 mt-4">
+<button class="bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-full font-bold transition-all transform hover:-translate-y-1 shadow-lg shadow-primary/30">Shop Now</button>
+<button class="bg-white text-slate-900 hover:bg-slate-100 px-8 py-3.5 rounded-full font-bold transition-all transform hover:-translate-y-1">View Lookbook</button>
+</div>
+</div>
+</section>
+<section class="mb-16">
+<h2 class="text-2xl font-bold mb-6 text-slate-900 dark:text-white">Shop by Category</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<a class="group relative rounded-lg overflow-hidden aspect-[4/5] bg-slate-200" href="#"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCtTQRnBruhFYfHIqsIwANzwU_1YLLpiSVraHPs3SyqhzQ010e0AG3b0qolrlmztna7Tbocg6I-x85E-ujVCE288qmUNHuHnhdIx2BLx8IDj_2Ro3H-3Y4kE5sQ88bigGPAB1UR9o6s7ZTw4V-TuFSDXSwDO1Z-ZKNYy_fDsGLkngWf_lr4m2-i3AEvlrG2OjkDu0eJU18SEJPuhRzdhmfp2LBy7TkWdZVpOh9X7a9K2-M-sLsCqAgPkeaxhLWLVD96W_uHX6Ygas4');"></div><div class="absolute inset-0 bg-black/20"></div><div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-lg">Dresses</h3></div></a>
+<a class="group relative rounded-lg overflow-hidden aspect-[4/5] bg-slate-200" href="#"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDNEFrR2Y75V8-HGkCiMmAFbRYi4lFXPzotrICogxjGZgGSC3ALwDOll-YVERbAxXb_gcYTB4BfHz-AB_zIo1O93YZfoSdwbd1n51HEfEMi67bhDJkWL496M7yHOpiB9sewB6AhHfAlVwBFEynpif3W_LTBbPwwLPb-8mjkikl0J9wnoaHh2A_7j_gZBIfNXe2JyV-JEJV6TSXqkc9YBiwZch1XotLWTGkHcEf_bJElFSUHchB58DarLvbYixssNejdBXgeIRvVFX4');"></div><div class="absolute inset-0 bg-black/20"></div><div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-lg">Denim</h3></div></a>
+<a class="group relative rounded-lg overflow-hidden aspect-[4/5] bg-slate-200" href="#"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAyQMwDMFcawjgPQlFcEkQM2dkuCJ-0GPhVFDJwnV8N_31oUG6FJYhyIu_OC4_hPOlseLxVQb0-0UkebiRqgIcXsjaaS5sI07Z1yVche4XxiFNWXKHsUSikk0esjp3hXHqO28rgmyuYCGjt9TAi3D2A8_obbbqse6stBFExlren5hfdEReUEmd_CTGUjGjXTM0HcHYg5uOOgVEOq-1tdo79IdAYQhqUgZ7-8WmIx2ak6MZNHCI3svTyoSIAgVFOAJiH92uw6jvfvkg');"></div><div class="absolute inset-0 bg-black/20"></div><div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-lg">Tops</h3></div></a>
+<a class="group relative rounded-lg overflow-hidden aspect-[4/5] bg-slate-200" href="#"><div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBoeZTw5Ownq5YCt1_8u7QQPWzMBECIIyw6vmpwq16zUfCPAqAeLMFACfFw9xHNrK3QGqHmk7g7xK7iaxQEgMlhN34-7vh63nvhx7sca8mzlmKyLbrcKZKVgQDghzbGW96pOCOxOjHYyr0Q36xjkdKexRefT2tCPyEjUWNYf6nP-mhLatEnjk_YVOYlxoY-ghwgwjkB_aacvvlCDQxD9WO6UryOBAiZppuM50FffBJlnoDoDeeJ_273LWBwq-i889nnqCZVIJHV_Fw');"></div><div class="absolute inset-0 bg-black/20"></div><div class="absolute bottom-4 left-4"><h3 class="text-white font-bold text-lg">Accessories</h3></div></a>
+</div>
+</section>
+</main>
+</div>
+</body></html>

@@ -1,45 +1,111 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Milfshakes Shopping Cart View</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
-  <style>
-    body { font-family: "Work Sans", sans-serif; }
-  </style>
-</head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
-  <header class="sticky top-0 bg-white border-b border-slate-200 z-10">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div>
-        <p class="text-xs uppercase tracking-wide text-slate-500">storefront</p>
-        <h1 class="font-bold text-lg">Milfshakes Shopping Cart View</h1>
-      </div>
-      <a href="/stitch" class="text-sm text-sky-700 hover:underline">Volver al hub</a>
-    </div>
-  </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-8">
-    <section class="bg-white border border-slate-200 rounded-xl p-8">
-      <h2 class="text-2xl font-bold">Milfshakes Shopping Cart View</h2>
-      <p class="text-slate-600 mt-2">Pantalla integrada en ruta final del proyecto.</p>
-      <div class="mt-6 grid sm:grid-cols-3 gap-4">
-        <article class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <p class="text-xs uppercase text-slate-500">Slug</p>
-          <p class="font-semibold mt-1">cart</p>
-        </article>
-        <article class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <p class="text-xs uppercase text-slate-500">Ruta</p>
-          <p class="font-semibold mt-1">/stitch/cart</p>
-        </article>
-        <article class="p-4 rounded-lg bg-slate-50 border border-slate-200">
-          <p class="text-xs uppercase text-slate-500">Estado</p>
-          <p class="font-semibold mt-1 text-emerald-700">Activa</p>
-        </article>
-      </div>
-    </section>
-  </main>
-</body>
-</html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Milfshakes Shopping Cart View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-10 py-3 bg-white dark:bg-slate-900">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+<div class="size-6 text-primary">
+<span class="material-symbols-outlined" style="font-size: 24px;">shopping_bag</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">Milfshakes</h2>
+</div>
+<div class="hidden md:flex items-center gap-9">
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Shop</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Collections</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">About</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined" style="font-size: 20px;">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search" type="text" value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Cart (2)</span>
+</button>
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+</button>
+</div>
+</div>
+</header>
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col lg:flex-row max-w-[1200px] w-full gap-8">
+<div class="flex flex-col flex-1 gap-6">
+<div class="flex flex-col gap-2">
+<h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Your Shopping Cart</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">Review your items before checkout</p>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
+<div class="flex items-start gap-4 flex-1 w-full">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBbs85zGpE5SPpkZB_OwACfhO4ZbOQQVDLxaWQJSdDgHSMOSRwx_yKxjJY1EkoELBU5ZX57Mx1IhqXrNHPwNLqPQGY32B7W7kB0AOXuSJLZGbnUv608-dyo_yxC3_FpjihSNjf08IH9CGGCM32tFNDqJMi0mjmeH9HkBXlsGk6GKfZJES1Hz-RWZbL7ShgcqDexdSl-203oDqlFQ2g4v22GanaKa1JYhheQMWIR6EjrTy47SAo4OJXbFpVES_lNxz9Zd8_iSLGxGnc");'></div>
+<div class="flex flex-col justify-center h-full">
+<h3 class="text-lg font-bold leading-normal">Classic Milfshakes Tee</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal mt-1">Size: M | Color: White</p>
+<p class="text-primary font-semibold text-base mt-2">$25.00</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
+<div class="flex items-start gap-4 flex-1 w-full">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBYyY8fxepGVH_H0GKGauzFgxywd6snKEqFcBkFYWaY3Clg31vQnTotEE-DEw0wBsnlXu6kERvIqm9zWDhTqpSUlS2Wcj2voTyHqC-1_6y0ImmxVOpgfxbOQF1Xl5bZ-uDvbhDpIkMGCKCRUrQ8y-pC7UEC60-MKbj8cySLVIO8cyhJxeFZ3L_d9t0GCxpYE2Op2_I4HlwzXTBMWMZtE6Z65PFEctPoFfxoIiAR-CoF_pg229UbN07njWt-IvS-ieZgi3Qq5cwjHJw");'></div>
+<div class="flex flex-col justify-center h-full">
+<h3 class="text-lg font-bold leading-normal">Vintage Wash Hoodie</h3>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal mt-1">Size: L | Color: Vintage Grey</p>
+<p class="text-primary font-semibold text-base mt-2">$65.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full lg:w-[380px] shrink-0">
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 sticky top-6">
+<h2 class="text-xl font-bold mb-6">Order Summary</h2>
+<div class="flex flex-col gap-4 mb-6">
+<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Subtotal</p><p class="font-medium text-base">$90.00</p></div>
+<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Estimated Shipping</p><p class="font-medium text-base">$5.00</p></div>
+<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Estimated Tax</p><p class="font-medium text-base">$8.55</p></div>
+</div>
+<div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-8"><div class="flex justify-between items-center"><p class="text-lg font-bold">Total</p><p class="text-2xl font-black text-primary">$103.55</p></div></div>
+<button class="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors mb-4 shadow-md shadow-primary/20">Proceed to Checkout</button>
+<div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 text-sm"><span class="material-symbols-outlined" style="font-size: 16px;">lock</span>Secure Checkout</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>
