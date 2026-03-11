@@ -42,11 +42,12 @@ Servicios esperados:
 
 ## Endpoints principales del gateway
 
-- `GET /` renderiza `app/views/index.ejs`
+- `GET /` redirige a `/storefront/home`
+- `GET /catalogo` renderiza `app/views/index.ejs` (fallback SSR EJS)
 - `GET /producto/:id` renderiza `app/views/product.ejs`
 - `GET /login` renderiza `app/views/login.ejs`
 - `GET /register` renderiza `app/views/register.ejs`
-- `GET /carrito` renderiza `app/views/carrito.ejs`
+- `GET /carrito` renderiza `app/views/carrito.ejs` (flujo EJS legado)
 - `GET /search?q=...` reutiliza `app/views/index.ejs` con resultados
 - `GET /categoria?c=...` reutiliza `app/views/index.ejs` filtrado
 - `GET /health`
@@ -106,8 +107,7 @@ Flujo de auth en vistas EJS:
 
 ### Acceso Universa & Hub
 
-- `GET /stitch/:slug` - Acceso dinámico a cualquier pantalla por slug (ej: `/stitch/home`, `/stitch/products-dashboard`)
-- `GET /stitch` - Hub con lista completa de todas las pantallas
+- No hay rutas dinámicas `/stitch/*` en el gateway actual; se exponen rutas explícitas `/storefront/*` y `/admin/*`.
 
 ### Arquitectura Técnica
 
@@ -117,8 +117,8 @@ Flujo de auth en vistas EJS:
 | **Ubicación** | `/app/public/stitch-screens/` (19 archivos `.html`) |
 | **Styling** | Tailwind CSS + Material Symbols icons (CDN Google Fonts) |
 | **Imágenes** | Assets locales `/app/public/images/stitch/` (12 JPGs - sin CDN externo) |
-| **Navegación** | Hardcoded `href` a rutas explícitas (0 placeholders dinámicos) |
-| **Modo rendering** | La ruta `/stitch/:slug` llama directo a `sendStitchHtml(res, slug)` |
+| **Navegación** | Rutas explícitas + mejoras globales en `nav.js` (home, cart, login, CTAs) |
+| **Modo rendering** | Rutas explícitas del gateway (`/storefront/*`, `/admin/*`) que llaman a `sendStitchHtml(res, slug)` |
 
 ### Integración Dinámica con API
 
@@ -164,9 +164,14 @@ escapeHtml()                // Prevención de XSS
 ```
 
 **Seguridad:**
-- Tokens JWT en `localStorage` inyectados automáticamente
+- Tokens JWT compatibles en `localStorage` (`token` y `auth_token`) e inyectados automáticamente
 - Validación 401 → redirección a `/login` si token expira
 - HTML escapado para prevenir XSS
+
+**UX reciente:**
+- Toasts no bloqueantes en catálogo y carrito (sin `alert()`)
+- Carrito con actualización en caliente (sin recarga completa por item)
+- Controles `+/-`, eliminar por ítem y prevención de doble clic mientras responde la API
 
 ### Desarrollo & Debugging Local
 
@@ -180,9 +185,6 @@ curl http://localhost:5000/admin/products
 
 # Cargar carrito
 curl http://localhost:5000/storefront/cart
-
-# Listar todas las pantallas disponibles
-curl http://localhost:5000/stitch
 ```
 
 **Testing dinámico:**
@@ -246,6 +248,14 @@ docker compose down
 - `GET /health/deep` valida dependencias internas (`auth`, `product`, `order`) y marca `strapi` como opcional.
 - `GET /metrics` expone snapshot JSON de trafico/latencia.
 - `GET /metrics?format=prometheus` expone metricas en texto para scraping.
+
+## Mejoras Lighthouse (marzo 2026)
+
+- SEO técnico base: `robots.txt` y `sitemap.xml` servidos desde `/app/public`.
+- Metadatos SEO en pantallas principales Stitch: `description`, `canonical`, Open Graph y Twitter card.
+- Seguridad HTTP en gateway: CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`.
+- Estrategia de caché: estáticos con cache; HTML sin cache.
+- Performance en catálogo: eliminación de fallback HTML estático masivo, render dinámico y `loading="lazy"` en imágenes.
 
 ## Smoke test E2E
 
