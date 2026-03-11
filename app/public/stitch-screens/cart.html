@@ -69,43 +69,117 @@
 <h1 class="text-4xl font-black leading-tight tracking-[-0.033em]">Your Shopping Cart</h1>
 <p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">Review your items before checkout</p>
 </div>
-<div class="flex flex-col gap-4">
-<div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
-<div class="flex items-start gap-4 flex-1 w-full">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style='background-image: url("/images/stitch/img-005.jpg");'></div>
-<div class="flex flex-col justify-center h-full">
-<h3 class="text-lg font-bold leading-normal">Classic Milfshakes Tee</h3>
-<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal mt-1">Size: M | Color: White</p>
-<p class="text-primary font-semibold text-base mt-2">$25.00</p>
+<!-- Loader -->
+<div id="cart-loader" class="flex justify-center items-center py-8">
+  <div class="inline-block">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
 </div>
+<!-- Items en el carrito -->
+<div id="cart-items" class="flex flex-col gap-4" style="display: none;"></div>
+<!-- Empty cart message -->
+<div id="empty-cart" class="text-center py-8" style="display: none;">
+  <p class="text-slate-500 dark:text-slate-400 mb-4">Tu carrito está vacío</p>
+  <a href="/storefront/catalog" class="text-primary hover:underline">Continuar comprando</a>
 </div>
-</div>
-<div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
-<div class="flex items-start gap-4 flex-1 w-full">
-<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style='background-image: url("/images/stitch/img-004.jpg");'></div>
-<div class="flex flex-col justify-center h-full">
-<h3 class="text-lg font-bold leading-normal">Vintage Wash Hoodie</h3>
-<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal mt-1">Size: L | Color: Vintage Grey</p>
-<p class="text-primary font-semibold text-base mt-2">$65.00</p>
-</div>
-</div>
-</div>
-</div>
+<!-- Error message -->
+<div id="cart-error" class="text-red-500 text-center py-4" style="display: none;"></div>
 </div>
 <div class="w-full lg:w-[380px] shrink-0">
 <div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 sticky top-6">
 <h2 class="text-xl font-bold mb-6">Order Summary</h2>
 <div class="flex flex-col gap-4 mb-6">
-<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Subtotal</p><p class="font-medium text-base">$90.00</p></div>
+<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Subtotal</p><p class="font-medium text-base" id="subtotal">$0.00</p></div>
 <div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Estimated Shipping</p><p class="font-medium text-base">$5.00</p></div>
-<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Estimated Tax</p><p class="font-medium text-base">$8.55</p></div>
+<div class="flex justify-between items-center"><p class="text-slate-600 dark:text-slate-400 text-base">Estimated Tax</p><p class="font-medium text-base" id="tax">$0.00</p></div>
 </div>
-<div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-8"><div class="flex justify-between items-center"><p class="text-lg font-bold">Total</p><p class="text-2xl font-black text-primary">$103.55</p></div></div>
-<button class="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors mb-4 shadow-md shadow-primary/20">Proceed to Checkout</button>
+<div class="border-t border-slate-200 dark:border-slate-700 pt-4 mb-8"><div class="flex justify-between items-center"><p class="text-lg font-bold">Total</p><p class="text-2xl font-black text-primary" id="total">$0.00</p></div></div>
+<button onclick="proceedToCheckout()" class="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors mb-4 shadow-md shadow-primary/20">Proceed to Checkout</button>
 <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 text-sm"><span class="material-symbols-outlined" style="font-size: 16px;">lock</span>Secure Checkout</div>
 </div>
 </div>
 </div>
 </div>
 </div>
+
+<script src="/stitch-screens/api-utils.js"></script>
+<script>
+  const SHIPPING = 5.00;
+  const TAX_RATE = 0.09;
+
+  async function loadCarrito() {
+    const loader = document.getElementById('cart-loader');
+    const itemsContainer = document.getElementById('cart-items');
+    const emptyMsg = document.getElementById('empty-cart');
+    const errorMsg = document.getElementById('cart-error');
+
+    try {
+      const response = await getCarrito();
+      const items = response.datos || [];
+
+      loader.style.display = 'none';
+
+      if (items.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+
+      itemsContainer.style.display = 'flex';
+
+      let html = '';
+      let subtotal = 0;
+
+      items.forEach(item => {
+        const itemPrice = parseFloat(item.precio || item.price || 0);
+        const itemQuantity = parseInt(item.cantidad || item.quantity || 1);
+        const itemTotal = itemPrice * itemQuantity;
+        subtotal += itemTotal;
+
+        const imagenUrl = item.imagen_url || item.image_url || '/images/placeholder.svg';
+
+        html += `
+          <div class="flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-800 justify-between items-start sm:items-center">
+            <div class="flex items-start gap-4 flex-1 w-full">
+              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg h-24 w-24 shrink-0 bg-slate-200 dark:bg-slate-800" style="background-image: url('${imagenUrl}'); background-size: cover;"></div>
+              <div class="flex flex-col justify-center h-full">
+                <h3 class="text-lg font-bold leading-normal">${escapeHtml(item.nombre || item.name)}</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal mt-1">Cantidad: ${itemQuantity}</p>
+                <p class="text-primary font-semibold text-base mt-2">$${itemPrice.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      itemsContainer.innerHTML = html;
+
+      // Calcular totales
+      const tax = subtotal * TAX_RATE;
+      const total = subtotal + SHIPPING + tax;
+
+      document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+      document.getElementById('total').textContent = '$' + total.toFixed(2);
+
+    } catch (error) {
+      loader.style.display = 'none';
+      errorMsg.style.display = 'block';
+      errorMsg.textContent = 'Error cargando carrito: ' + error.message;
+      console.error('Error:', error);
+    }
+  }
+
+  function proceedToCheckout() {
+    const token = getAuthToken();
+    if (!token) {
+      alert('Por favor inicia sesión para continuar');
+      window.location.href = '/login';
+      return;
+    }
+    window.location.href = '/storefront/checkout';
+  }
+
+  // Cargar carrito cuando carga la página
+  document.addEventListener('DOMContentLoaded', loadCarrito);
+</script>
 </body></html>

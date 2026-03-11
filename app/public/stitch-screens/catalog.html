@@ -47,14 +47,82 @@
 <main class="flex-grow w-full max-w-[1440px] mx-auto px-6 lg:px-10 py-8">
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
     <div>
-      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-text-main">New Arrivals</h1>
-      <p class="text-text-muted mt-2 max-w-xl">Discover our latest collection of sustainable, comfortable, and stylish apparel designed for everyday confidence.</p>
+      <h1 class="text-3xl md:text-4xl font-black tracking-tight text-text-main">Catálogo de Productos</h1>
+      <p class="text-text-muted mt-2 max-w-xl">Descubre nuestra colección completa de productos diseñados para ti.</p>
     </div>
   </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div class="group flex flex-col gap-3"><div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100"><img class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" src="/images/stitch/img-007.jpg"/></div><h3 class="font-bold">Essential Cotton Tee</h3><p class="text-primary font-bold">$35.00</p></div>
-    <div class="group flex flex-col gap-3"><div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100"><img class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" src="/images/stitch/img-009.jpg"/></div><h3 class="font-bold">Summer Breeze Dress</h3><p class="text-primary font-bold">$89.00</p></div>
-    <div class="group flex flex-col gap-3"><div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100"><img class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" src="/images/stitch/img-011.jpg"/></div><h3 class="font-bold">Classic Denim Jacket</h3><p class="text-primary font-bold">$65.00</p></div>
+  <!-- Loader mientras se cargan productos -->
+  <div id="loading" class="flex justify-center items-center py-12">
+    <div class="inline-block">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
   </div>
+  <!-- Grid de productos dinámico -->
+  <div id="productos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  <!-- Error message -->
+  <div id="error-message" class="text-center text-red-600 py-8" style="display: none;"></div>
 </main>
+
+<script src="/stitch-screens/api-utils.js"></script>
+<script>
+  async function loadProductos() {
+    const loader = document.getElementById('loading');
+    const grid = document.getElementById('productos-grid');
+    const errorMsg = document.getElementById('error-message');
+    
+    try {
+      loader.style.display = 'flex';
+      errorMsg.style.display = 'none';
+      
+      const response = await getProductos(1, 12);
+      const productos = response.datos || [];
+      
+      loader.style.display = 'none';
+      
+      if (productos.length === 0) {
+        grid.innerHTML = '<p class="col-span-full text-center text-text-muted py-12">No hay productos disponibles</p>';
+        return;
+      }
+      
+      let html = '';
+      productos.forEach(prod => {
+        const imagenUrl = prod.imagen_url || '/images/placeholder.svg';
+        const precio = parseFloat(prod.precio || 0).toFixed(2);
+        
+        html += `
+          <div class="group flex flex-col gap-3">
+            <div class="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
+              <img 
+                class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105" 
+                src="${imagenUrl}"
+                alt="${escapeHtml(prod.nombre)}"
+                onerror="this.src='/images/placeholder.svg'"
+              />
+            </div>
+            <h3 class="font-bold line-clamp-2">${escapeHtml(prod.nombre)}</h3>
+            <p class="text-text-muted text-sm line-clamp-2">${escapeHtml(prod.descripcion || '')}</p>
+            <p class="text-primary font-bold">$${precio}</p>
+            <p class="text-text-muted text-xs">Stock: ${prod.stock}</p>
+            <button 
+              onclick="agregarAlCarritoUI(${prod.id})"
+              class="w-full bg-primary text-white py-2 rounded-lg font-bold hover:opacity-90 transition"
+            >
+              Agregar al Carrito
+            </button>
+          </div>
+        `;
+      });
+      
+      grid.innerHTML = html;
+    } catch (error) {
+      loader.style.display = 'none';
+      errorMsg.style.display = 'block';
+      errorMsg.textContent = 'Error cargando productos: ' + error.message;
+      console.error('Error:', error);
+    }
+  }
+  
+  // Cargar productos cuando se carga la página
+  document.addEventListener('DOMContentLoaded', loadProductos);
+</script>
 </body></html>
