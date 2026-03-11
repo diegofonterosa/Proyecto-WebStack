@@ -12,6 +12,13 @@
   </div>
 </section>
 
+<section class="promo-strip" aria-label="Promociones y beneficios">
+  <span>Envio 24h en pedidos seleccionados</span>
+  <span>Pago seguro con cifrado</span>
+  <span>Devoluciones faciles en 30 dias</span>
+  <span>Nuevos lanzamientos cada semana</span>
+</section>
+
 <section class="filters">
   <div class="filter-group">
     <label for="categoria-filter">Filtrar por categoria:</label>
@@ -33,10 +40,11 @@
     </div>
   <% } else { %>
     <div class="products-grid">
-      <% productos.forEach((prod) => { %>
-        <div class="product-card">
+      <% productos.forEach((prod, idx) => { %>
+        <div class="product-card card-tilt-<%= (idx % 3) + 1 %>">
           <div class="product-image">
             <img src="<%= prod.imagen_url || '/images/placeholder.svg' %>" alt="<%= prod.nombre %>" onerror="this.onerror=null;this.src='/images/placeholder.svg';">
+            <div class="product-sticker"><%= (prod.categoria || 'Top').toUpperCase() %></div>
             <% if ((prod.stock ?? 0) <= 0) { %>
               <div class="out-of-stock">Agotado</div>
             <% } %>

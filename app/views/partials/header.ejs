@@ -60,8 +60,11 @@
 
         const safeCount = Number.isFinite(count) ? Math.max(0, count) : 0;
         if (safeCount > 0) {
-          cartCount.textContent = String(safeCount);
+          cartCount.textContent = safeCount > 99 ? '99+' : String(safeCount);
           cartCount.style.display = 'flex';
+          cartCount.classList.remove('cart-bump');
+          void cartCount.offsetWidth;
+          cartCount.classList.add('cart-bump');
           return;
         }
 
