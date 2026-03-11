@@ -10,26 +10,92 @@
   </style>
 </head>
 <body class="bg-slate-100 text-slate-900 min-h-screen">
-  <main class="max-w-5xl mx-auto px-4 py-10">
-    <a href="/stitch" class="inline-flex items-center text-sm text-sky-700 hover:underline mb-5">Volver al hub</a>
+  <% const storefrontLinks = [
+    { href: '/storefront/home', label: 'Home' },
+    { href: '/storefront/catalog', label: 'Catalogo' },
+    { href: '/storefront/cart', label: 'Carrito' },
+    { href: '/storefront/checkout', label: 'Checkout' }
+  ]; %>
+  <% const adminLinks = [
+    { href: '/admin/dashboard', label: 'Dashboard' },
+    { href: '/admin/products', label: 'Productos' },
+    { href: '/admin/products/new', label: 'Nuevo producto' },
+    { href: '/admin/products/editor', label: 'Editor producto' },
+    { href: '/admin/products/variants', label: 'Variantes' },
+    { href: '/admin/orders', label: 'Pedidos' },
+    { href: '/admin/orders/table', label: 'Pedidos tabla' },
+    { href: '/admin/customers', label: 'CRM clientes' },
+    { href: '/admin/media', label: 'Media library' },
+    { href: '/admin/marketing', label: 'Marketing' },
+    { href: '/admin/reports/best-sellers', label: 'Reporte ventas' },
+    { href: '/admin/inventory/alerts', label: 'Alertas stock' },
+    { href: '/admin/settings/store', label: 'Store settings' },
+    { href: '/admin/users/roles', label: 'Roles y permisos' },
+    { href: '/admin/ssl', label: 'SSL dashboard' }
+  ]; %>
 
-    <% if (!screen) { %>
-      <div class="bg-white border border-slate-200 rounded-xl p-8">
-        <h1 class="text-2xl font-bold">Pantalla no encontrada</h1>
-        <p class="text-slate-600 mt-2">El slug solicitado no existe en la integracion Stitch.</p>
+  <header class="border-b border-slate-200 bg-white sticky top-0 z-10">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500">Stitch integrado</p>
+        <h1 class="font-bold text-lg"><%= screen ? screen.title : 'Pantalla no encontrada' %></h1>
       </div>
-    <% } else { %>
-      <div class="bg-white border border-slate-200 rounded-xl p-8">
-        <span class="inline-flex text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700 uppercase"><%= screen.section %></span>
-        <h1 class="text-2xl font-bold mt-3"><%= screen.title %></h1>
-        <p class="text-slate-600 mt-2">Ruta integrada para esta pantalla: <strong>/stitch/<%= screen.slug %></strong>.</p>
+      <a href="/stitch" class="text-sm text-sky-700 hover:underline">Volver al hub</a>
+    </div>
+  </header>
 
-        <div class="mt-6 p-5 rounded-lg border border-dashed border-slate-300 bg-slate-50">
-          <p class="font-medium">Estado: estructura integrada en el proyecto</p>
-          <p class="text-sm text-slate-600 mt-2">Esta ruta ya esta disponible y registrada. Si quieres, en el siguiente paso inserto el HTML completo de Stitch por cada pantalla en sus vistas definitivas de storefront/admin.</p>
+  <main class="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-[260px_1fr] gap-6">
+    <aside class="bg-white border border-slate-200 rounded-xl p-4 h-fit">
+      <h2 class="font-semibold mb-3">Navegacion storefront</h2>
+      <nav class="space-y-1 mb-5">
+        <% storefrontLinks.forEach((item) => { %>
+          <a href="<%= item.href %>" class="block text-sm px-3 py-2 rounded hover:bg-slate-100"><%= item.label %></a>
+        <% }) %>
+      </nav>
+
+      <h2 class="font-semibold mb-3">Navegacion admin</h2>
+      <nav class="space-y-1">
+        <% adminLinks.forEach((item) => { %>
+          <a href="<%= item.href %>" class="block text-sm px-3 py-2 rounded hover:bg-slate-100"><%= item.label %></a>
+        <% }) %>
+      </nav>
+    </aside>
+
+    <section>
+      <% if (!screen) { %>
+        <div class="bg-white border border-slate-200 rounded-xl p-8">
+          <h2 class="text-2xl font-bold">Pantalla no encontrada</h2>
+          <p class="text-slate-600 mt-2">El slug solicitado no existe en la integracion Stitch.</p>
         </div>
-      </div>
-    <% } %>
+      <% } else { %>
+        <div class="bg-white border border-slate-200 rounded-xl p-8">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="inline-flex text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-700 uppercase"><%= screen.section %></span>
+            <span class="text-xs text-slate-500">/stitch/<%= screen.slug %></span>
+          </div>
+
+          <h2 class="text-2xl font-bold mb-3">Render de pantalla</h2>
+          <p class="text-slate-600 mb-4">Visualizacion dedicada para este slug de Stitch.</p>
+
+          <div class="rounded-xl overflow-hidden border border-slate-200">
+            <iframe
+              src="/stitch-screens/<%= screen.slug %>.html"
+              title="<%= screen.title %>"
+              class="w-full h-[80vh] bg-white"
+            ></iframe>
+          </div>
+
+          <% if (screen.section === 'storefront') { %>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <a href="/storefront/home" class="px-3 py-2 text-sm rounded bg-sky-600 text-white">Home</a>
+              <a href="/storefront/catalog" class="px-3 py-2 text-sm rounded bg-slate-100">Catalogo</a>
+              <a href="/storefront/cart" class="px-3 py-2 text-sm rounded bg-slate-100">Carrito</a>
+              <a href="/storefront/checkout" class="px-3 py-2 text-sm rounded bg-slate-100">Checkout</a>
+            </div>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
   </main>
 </body>
 </html>

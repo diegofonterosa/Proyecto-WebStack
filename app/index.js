@@ -34,6 +34,10 @@ const verifyToken = (req, res, next) => {
 		req.path === '/register' ||
 		req.path === '/stitch' ||
 		req.path.startsWith('/stitch/') ||
+		req.path === '/storefront' ||
+		req.path.startsWith('/storefront/') ||
+		req.path === '/admin' ||
+		req.path.startsWith('/admin/') ||
 		/^\/producto\/\d+$/.test(req.path) ||
 		req.path === '/health' ||
 		req.path === '/metrics' ||
@@ -223,8 +227,8 @@ app.get('/stitch', (req, res) => {
 	});
 });
 
-app.get('/stitch/:slug', (req, res) => {
-	const screen = stitchScreensBySlug.get(req.params.slug);
+const renderStitchBySlug = (req, res, slug) => {
+	const screen = stitchScreensBySlug.get(slug);
 
 	if (!screen) {
 		return res.status(404).render('stitch/screen', {
@@ -237,7 +241,34 @@ app.get('/stitch/:slug', (req, res) => {
 		titulo: screen.title,
 		screen
 	});
+};
+
+app.get('/stitch/:slug', (req, res) => {
+	return renderStitchBySlug(req, res, req.params.slug);
 });
+
+app.get('/storefront', (req, res) => res.redirect('/storefront/home'));
+app.get('/storefront/home', (req, res) => renderStitchBySlug(req, res, 'home'));
+app.get('/storefront/catalog', (req, res) => renderStitchBySlug(req, res, 'catalog'));
+app.get('/storefront/cart', (req, res) => renderStitchBySlug(req, res, 'cart'));
+app.get('/storefront/checkout', (req, res) => renderStitchBySlug(req, res, 'checkout'));
+
+app.get('/admin', (req, res) => res.redirect('/admin/dashboard'));
+app.get('/admin/dashboard', (req, res) => renderStitchBySlug(req, res, 'admin-dashboard'));
+app.get('/admin/ssl', (req, res) => renderStitchBySlug(req, res, 'ssl-dashboard'));
+app.get('/admin/products', (req, res) => renderStitchBySlug(req, res, 'products-dashboard'));
+app.get('/admin/products/editor', (req, res) => renderStitchBySlug(req, res, 'product-editor'));
+app.get('/admin/products/new', (req, res) => renderStitchBySlug(req, res, 'add-product'));
+app.get('/admin/products/variants', (req, res) => renderStitchBySlug(req, res, 'product-variants'));
+app.get('/admin/media', (req, res) => renderStitchBySlug(req, res, 'media-library'));
+app.get('/admin/orders', (req, res) => renderStitchBySlug(req, res, 'orders-dashboard'));
+app.get('/admin/orders/table', (req, res) => renderStitchBySlug(req, res, 'orders-view'));
+app.get('/admin/customers', (req, res) => renderStitchBySlug(req, res, 'customers-crm'));
+app.get('/admin/inventory/alerts', (req, res) => renderStitchBySlug(req, res, 'low-stock-alerts'));
+app.get('/admin/reports/best-sellers', (req, res) => renderStitchBySlug(req, res, 'best-selling-report'));
+app.get('/admin/settings/store', (req, res) => renderStitchBySlug(req, res, 'global-settings'));
+app.get('/admin/marketing', (req, res) => renderStitchBySlug(req, res, 'marketing-promotions'));
+app.get('/admin/users/roles', (req, res) => renderStitchBySlug(req, res, 'roles-permissions'));
 
 app.use('/api/auth', httpProxy(authServiceUrl, {
 	proxyReqPathResolver: (req) => '/api' + req.url,
