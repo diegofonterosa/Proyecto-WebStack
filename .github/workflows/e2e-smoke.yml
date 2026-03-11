@@ -72,6 +72,9 @@ jobs:
       - name: Run E2E smoke test
         run: ./archive/scripts/e2e-smoke.sh
 
+      - name: Run API integration tests
+        run: bash tests/run.sh
+
       - name: Show container logs on failure
         if: failure()
         run: docker compose logs --no-color --tail=200

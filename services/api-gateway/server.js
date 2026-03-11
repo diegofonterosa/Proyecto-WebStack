@@ -37,6 +37,7 @@ const verifyToken = (req, res, next) => {
         req.path === '/metrics' ||
         req.path.startsWith('/api/auth') ||
         req.path.startsWith('/api/productos') ||
+        req.path.startsWith('/api/categorias') ||
         req.path.startsWith('/api/carrito') ||
         req.path.startsWith('/api/pedidos') ||
         req.path.startsWith('/api/cms');
@@ -282,6 +283,13 @@ app.use('/api/productos', httpProxy(productServiceUrl, {
     proxyReqPathResolver: (req) => {
         const suffix = req.url === '/' ? '' : req.url;
         return '/api/productos' + suffix;
+    }
+}));
+
+app.use('/api/categorias', httpProxy(productServiceUrl, {
+    proxyReqPathResolver: (req) => {
+        const suffix = req.url === '/' ? '' : req.url;
+        return '/api/categorias' + suffix;
     }
 }));
 
