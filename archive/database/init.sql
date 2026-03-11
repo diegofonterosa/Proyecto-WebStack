@@ -99,8 +99,8 @@ INSERT INTO productos (nombre, descripcion, precio, stock, categoria, imagen_url
 
 -- Crear usuario admin
 INSERT INTO usuarios (nombre, email, contrasena, rol) VALUES
-('Admin Tienda', 'admin@tienda.local', '$2y$10$2HFJvvj7R5ZsIx0yP4k4OeWkMlkZJ0ZJV0ZGkZJV0ZGkZJV0ZGkZJ', 'admin'),
-('Usuario Demo', 'demo@tienda.local', '$2y$10$2HFJvvj7R5ZsIx0yP4k4OeWkMlkZJ0ZJV0ZGkZJV0ZGkZJV0ZGkZJ', 'cliente');
+('Admin Tienda', 'admin@tienda.local', '$2y$10$TEhq0YWLcq.rZG.NUQP9NuDCVMAjMWCaBBawL7zpDoizk2btNjDuq', 'admin'),
+('Usuario Demo', 'demo@tienda.local', '$2y$10$TEhq0YWLcq.rZG.NUQP9NuDCVMAjMWCaBBawL7zpDoizk2btNjDuq', 'cliente');
 
 -- Crear índices adicionales para búsqueda
 CREATE FULLTEXT INDEX idx_fulltext_productos ON productos(nombre, descripcion);
