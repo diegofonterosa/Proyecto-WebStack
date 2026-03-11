@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const httpProxy = require('express-http-proxy');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const path = require('path');
 require('dotenv').config();
 
@@ -10,6 +11,138 @@ const app = express();
 const viewsDir = process.env.EJS_VIEWS_DIR || path.resolve(__dirname, '../../app/views');
 const publicAssetsDir = process.env.PUBLIC_ASSETS_DIR || path.resolve(__dirname, '../../app/public');
 
+const MAX_LATENCY_SAMPLES = 400;
+const dependencyTimeoutMs = Number(process.env.HEALTHCHECK_TIMEOUT_MS || 2000);
+const appMetrics = {
+    startedAt: Date.now(),
+    requestsTotal: 0,
+    errorsTotal: 0,
+    byMethod: {},
+    byStatus: {},
+    byRoute: {},
+    latencySamplesMs: []
+};
+
+const normalizeRoute = (rawPath) => {
+    if (!rawPath) return '/';
+    return rawPath
+        .replace(/\/(\d+)(?=\/|$)/g, '/:id')
+        .replace(/\/[0-9a-f]{8}-[0-9a-f-]{27,}(?=\/|$)/gi, '/:id');
+};
+
+const pushLatencySample = (durationMs) => {
+    appMetrics.latencySamplesMs.push(durationMs);
+    if (appMetrics.latencySamplesMs.length > MAX_LATENCY_SAMPLES) {
+        appMetrics.latencySamplesMs.shift();
+    }
+};
+
+const percentile = (values, p) => {
+    if (!values.length) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const idx = Math.min(sorted.length - 1, Math.floor((p / 100) * (sorted.length - 1)));
+    return sorted[idx];
+};
+
+const buildMetricsSnapshot = () => {
+    const samples = appMetrics.latencySamplesMs;
+    const totalLatency = samples.reduce((acc, item) => acc + item, 0);
+    const avg = samples.length ? totalLatency / samples.length : 0;
+    const p95 = percentile(samples, 95);
+    const max = samples.length ? Math.max(...samples) : 0;
+
+    return {
+        service: 'api-gateway',
+        environment: process.env.NODE_ENV || 'development',
+        started_at: new Date(appMetrics.startedAt).toISOString(),
+        uptime_seconds: Number(process.uptime().toFixed(2)),
+        requests_total: appMetrics.requestsTotal,
+        errors_total: appMetrics.errorsTotal,
+        error_rate: appMetrics.requestsTotal
+            ? Number((appMetrics.errorsTotal / appMetrics.requestsTotal).toFixed(4))
+            : 0,
+        latency_ms: {
+            avg: Number(avg.toFixed(2)),
+            p95: Number(p95.toFixed(2)),
+            max: Number(max.toFixed(2)),
+            samples: samples.length
+        },
+        by_method: appMetrics.byMethod,
+        by_status: appMetrics.byStatus,
+        by_route: appMetrics.byRoute,
+        memory: process.memoryUsage()
+    };
+};
+
+const buildPrometheusMetrics = (snapshot) => {
+    const lines = [
+        '# HELP gateway_uptime_seconds API Gateway uptime in seconds',
+        '# TYPE gateway_uptime_seconds gauge',
+        `gateway_uptime_seconds ${snapshot.uptime_seconds}`,
+        '# HELP gateway_requests_total Total HTTP requests',
+        '# TYPE gateway_requests_total counter',
+        `gateway_requests_total ${snapshot.requests_total}`,
+        '# HELP gateway_errors_total Total HTTP errors (status >= 500)',
+        '# TYPE gateway_errors_total counter',
+        `gateway_errors_total ${snapshot.errors_total}`,
+        '# HELP gateway_latency_ms_avg Average latency in milliseconds',
+        '# TYPE gateway_latency_ms_avg gauge',
+        `gateway_latency_ms_avg ${snapshot.latency_ms.avg}`,
+        '# HELP gateway_latency_ms_p95 P95 latency in milliseconds',
+        '# TYPE gateway_latency_ms_p95 gauge',
+        `gateway_latency_ms_p95 ${snapshot.latency_ms.p95}`
+    ];
+
+    Object.entries(snapshot.by_status).forEach(([status, count]) => {
+        lines.push(`gateway_requests_by_status{status="${status}"} ${count}`);
+    });
+
+    Object.entries(snapshot.by_method).forEach(([method, count]) => {
+        lines.push(`gateway_requests_by_method{method="${method}"} ${count}`);
+    });
+
+    return lines.join('\n') + '\n';
+};
+
+const withRequestIdProxy = (options = {}) => {
+    const originalDecorator = options.proxyReqOptDecorator;
+    return {
+        ...options,
+        proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+            const opts = proxyReqOpts;
+            opts.headers = opts.headers || {};
+            if (srcReq.requestId) {
+                opts.headers['x-request-id'] = srcReq.requestId;
+            }
+
+            if (typeof originalDecorator === 'function') {
+                return originalDecorator(opts, srcReq);
+            }
+
+            return opts;
+        }
+    };
+};
+
+const checkDependency = async (name, url, required = true) => {
+    try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(dependencyTimeoutMs) });
+        return {
+            name,
+            required,
+            status: response.ok ? 'up' : 'down',
+            http_status: response.status
+        };
+    } catch (error) {
+        return {
+            name,
+            required,
+            status: 'down',
+            error: error.message
+        };
+    }
+};
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -17,9 +150,41 @@ app.use(express.static(publicAssetsDir));
 app.set('view engine', 'ejs');
 app.set('views', viewsDir);
 
-// Logger middleware
+// Request tracing + structured logs + metricas HTTP
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    const requestId = req.headers['x-request-id'] || crypto.randomUUID();
+    const start = process.hrtime.bigint();
+
+    req.requestId = requestId;
+    res.setHeader('x-request-id', requestId);
+
+    res.on('finish', () => {
+        const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+        const routeKey = `${req.method} ${normalizeRoute(req.path)}`;
+        const statusCode = String(res.statusCode);
+
+        appMetrics.requestsTotal += 1;
+        appMetrics.byMethod[req.method] = (appMetrics.byMethod[req.method] || 0) + 1;
+        appMetrics.byStatus[statusCode] = (appMetrics.byStatus[statusCode] || 0) + 1;
+        appMetrics.byRoute[routeKey] = (appMetrics.byRoute[routeKey] || 0) + 1;
+        pushLatencySample(durationMs);
+
+        if (res.statusCode >= 500) {
+            appMetrics.errorsTotal += 1;
+        }
+
+        console.log(JSON.stringify({
+            ts: new Date().toISOString(),
+            level: res.statusCode >= 500 ? 'error' : 'info',
+            request_id: requestId,
+            method: req.method,
+            path: req.originalUrl,
+            status: res.statusCode,
+            duration_ms: Number(durationMs.toFixed(2)),
+            user_id: req.usuario?.sub || null
+        }));
+    });
+
     next();
 });
 
@@ -34,6 +199,7 @@ const verifyToken = (req, res, next) => {
         req.path === '/categoria' ||
         /^\/producto\/\d+$/.test(req.path) ||
         req.path === '/health' ||
+        req.path === '/health/deep' ||
         req.path === '/metrics' ||
         req.path.startsWith('/api/auth') ||
         req.path.startsWith('/api/productos') ||
@@ -267,7 +433,7 @@ app.get('/producto/:id', async (req, res, next) => {
 
 // AUTH SERVICE (Puerto 5001)
 const authServiceUrl = `http://${process.env.AUTH_SERVICE_HOST || 'auth-service'}:${process.env.AUTH_SERVICE_PORT || 5001}`;
-app.use('/api/auth', httpProxy(authServiceUrl, {
+app.use('/api/auth', httpProxy(authServiceUrl, withRequestIdProxy({
     proxyReqPathResolver: (req) => {
         const suffix = req.url === '/' ? '' : req.url;
         return '/api' + suffix;
@@ -275,63 +441,85 @@ app.use('/api/auth', httpProxy(authServiceUrl, {
     userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
         return proxyResData;
     }
-}));
+})));
 
 // PRODUCT SERVICE (Puerto 5002)
 const productServiceUrl = `http://${process.env.PRODUCT_SERVICE_HOST || 'product-service'}:${process.env.PRODUCT_SERVICE_PORT || 5002}`;
-app.use('/api/productos', httpProxy(productServiceUrl, {
+app.use('/api/productos', httpProxy(productServiceUrl, withRequestIdProxy({
     proxyReqPathResolver: (req) => {
         const suffix = req.url === '/' ? '' : req.url;
         return '/api/productos' + suffix;
     }
-}));
+})));
 
-app.use('/api/categorias', httpProxy(productServiceUrl, {
+app.use('/api/categorias', httpProxy(productServiceUrl, withRequestIdProxy({
     proxyReqPathResolver: (req) => {
         const suffix = req.url === '/' ? '' : req.url;
         return '/api/categorias' + suffix;
     }
-}));
+})));
 
 // STRAPI CMS (puede ser interno o URL pública)
 const strapiUrl = process.env.STRAPI_URL || `http://${process.env.STRAPI_HOST || 'strapi-cms'}:${process.env.STRAPI_PORT || 1337}`;
-app.use('/api/cms', httpProxy(strapiUrl, {
+app.use('/api/cms', httpProxy(strapiUrl, withRequestIdProxy({
     proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
         // reescribe path para que Strapi reciba /api en vez de /api/cms
         proxyReqOpts.path = srcReq.url.replace(/^\/api\/cms/, '/api');
         return proxyReqOpts;
     }
-}));
+})));
 
 
 // ORDER SERVICE (Puerto 5003)
 const orderServiceUrl = `http://${process.env.ORDER_SERVICE_HOST || 'order-service'}:${process.env.ORDER_SERVICE_PORT || 5003}`;
-app.use('/api/pedidos', httpProxy(orderServiceUrl, {
+app.use('/api/pedidos', httpProxy(orderServiceUrl, withRequestIdProxy({
     proxyReqPathResolver: (req) => {
         const suffix = req.url === '/' ? '' : req.url;
         return '/api/pedidos' + suffix;
     }
-}));
+})));
 
-app.use('/api/carrito', httpProxy(orderServiceUrl, {
+app.use('/api/carrito', httpProxy(orderServiceUrl, withRequestIdProxy({
     proxyReqPathResolver: (req) => {
         const suffix = req.url === '/' ? '' : req.url;
         return '/api/carrito' + suffix;
     }
-}));
+})));
 
 // Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'API Gateway is running', timestamp: new Date().toISOString() });
 });
 
+app.get('/health/deep', async (req, res) => {
+    const checks = await Promise.all([
+        checkDependency('auth-service', `${authServiceUrl}/health`, true),
+        checkDependency('product-service', `${productServiceUrl}/api/health`, true),
+        checkDependency('order-service', `${orderServiceUrl}/api/health`, true),
+        checkDependency('strapi-cms', `${strapiUrl}/_health`, false)
+    ]);
+
+    const allUp = checks.every((item) => !item.required || item.status === 'up');
+
+    res.status(allUp ? 200 : 503).json({
+        status: allUp ? 'up' : 'degraded',
+        timestamp: new Date().toISOString(),
+        request_id: req.requestId,
+        checks
+    });
+});
+
 // Metrics básico
 app.get('/metrics', (req, res) => {
-    res.json({
-        uptime: process.uptime(),
-        memory: process.memoryUsage(),
-        environment: process.env.NODE_ENV || 'development'
-    });
+    const snapshot = buildMetricsSnapshot();
+    const wantsPrometheus = req.query.format === 'prometheus' || req.headers.accept?.includes('text/plain');
+
+    if (wantsPrometheus) {
+        res.type('text/plain').send(buildPrometheusMetrics(snapshot));
+        return;
+    }
+
+    res.json(snapshot);
 });
 
 // Error handling

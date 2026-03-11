@@ -50,6 +50,7 @@ Servicios esperados:
 - `GET /search?q=...` reutiliza `app/views/index.ejs` con resultados
 - `GET /categoria?c=...` reutiliza `app/views/index.ejs` filtrado
 - `GET /health`
+- `GET /health/deep`
 - `GET /metrics`
 - Proxy APIs:
   - `/api/auth/*` -> `auth-service`
@@ -92,9 +93,20 @@ docker compose logs -f strapi-cms
 # validar compose
 docker compose config -q
 
+# chequeo de observabilidad
+bash archive/scripts/observability-check.sh
+
 # apagar
 docker compose down
 ```
+
+## Observabilidad
+
+- Logs estructurados JSON en gateway con: `request_id`, `status`, `duration_ms`, `user_id`.
+- Propagacion de trazas por header `x-request-id` desde gateway a microservicios proxied.
+- `GET /health/deep` valida dependencias internas (`auth`, `product`, `order`) y marca `strapi` como opcional.
+- `GET /metrics` expone snapshot JSON de trafico/latencia.
+- `GET /metrics?format=prometheus` expone metricas en texto para scraping.
 
 ## Smoke test E2E
 
@@ -138,12 +150,116 @@ Pasos del workflow:
   - `docker compose config -q`
   - validacion de sintaxis Bash en `archive/scripts/*.sh`
   - deteccion de patrones criticos de secretos (fallo)
-  - placeholders inseguros en `docker-compose.yml` como warning
+  - deteccion de secretos hardcodeados en `docker-compose.yml` (fallo)
+  - validacion de presencia de `.env.example`
 - Levanta `mysql`, `auth-service`, `product-service`, `order-service`, `api-gateway`
 - Espera health del gateway
 - Ejecuta `archive/scripts/e2e-smoke.sh`
+- Ejecuta tests de integracion en `tests/*.test.js` via `tests/run.sh`
 - Publica logs de contenedores si falla
 - Detiene servicios al finalizar
+
+## Configuracion de produccion
+
+### 1) Variables de entorno
+
+- Crear `.env` a partir de `.env.example` para desarrollo local.
+- En produccion, inyectar secretos desde el gestor de secretos de tu plataforma.
+- Variables minimas requeridas:
+  - `MYSQL_ROOT_PASSWORD`
+  - `MYSQL_DATABASE`
+  - `MYSQL_USER`
+  - `MYSQL_PASSWORD`
+  - `JWT_SECRET`
+  - `STRAPI_DB_PASSWORD`
+  - `STRAPI_ADMIN_JWT_SECRET`
+  - `STRAPI_APP_KEYS`
+
+Recomendacion:
+
+```bash
+# JWT y admin secret
+openssl rand -hex 32
+
+# APP_KEYS de Strapi (4 valores)
+node -e "console.log([1,2,3,4].map(()=>require('crypto').randomBytes(16).toString('base64')).join(','))"
+```
+
+### 2) Seguridad minima antes de exponer a internet
+
+- Ejecutar chequeos de seguridad locales:
+
+```bash
+bash archive/scripts/ci-sanity.sh
+bash archive/scripts/security-check.sh
+```
+
+- Confirmar que no hay secretos hardcodeados en `docker-compose.yml`.
+- Usar TLS/HTTPS en el reverse proxy de entrada (Nginx/Load Balancer).
+- Limitar origenes CORS en entorno productivo.
+
+### 3) Observabilidad operativa
+
+- Health basico: `GET /health`
+- Health profundo: `GET /health/deep`
+- Metricas JSON: `GET /metrics`
+- Metricas Prometheus: `GET /metrics?format=prometheus`
+
+Chequeo rapido:
+
+```bash
+bash archive/scripts/observability-check.sh
+```
+
+## Runbook de operacion
+
+### Arranque
+
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+### Verificacion funcional
+
+```bash
+bash archive/scripts/e2e-smoke.sh
+bash tests/run.sh
+```
+
+### Backup y restore
+
+```bash
+bash archive/scripts/backup.sh
+bash archive/scripts/restore.sh
+```
+
+### Diagnostico rapido de incidentes
+
+```bash
+# estado general
+docker compose ps
+
+# logs de gateway y servicios
+docker compose logs --tail=200 api-gateway
+docker compose logs --tail=200 auth-service
+docker compose logs --tail=200 product-service
+docker compose logs --tail=200 order-service
+
+# salud y metricas
+curl -s http://localhost:5000/health | python3 -m json.tool
+curl -s http://localhost:5000/health/deep | python3 -m json.tool
+curl -s 'http://localhost:5000/metrics?format=prometheus' | head -n 20
+```
+
+## Criterios de entrega (DoD)
+
+- [x] Flujo critico e-commerce validado (registro, login, carrito, pedido)
+- [x] Pipeline CI con sanity checks y smoke test
+- [x] Tests de integracion por dominio (`auth`, `products`, `orders`, `observability`)
+- [x] Secretos movidos a variables de entorno (`.env`/`.env.example`)
+- [x] Endpoint de observabilidad y trazabilidad por request id
+- [x] README final con operacion, seguridad y runbook
 
 ## Desarrollo local sin Docker (opcional)
 
