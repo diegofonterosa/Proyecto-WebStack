@@ -31,6 +31,7 @@ app.use((req, res, next) => {
 const verifyToken = (req, res, next) => {
 	const isPublicPath =
 		req.path === '/' ||
+		req.path === '/catalogo' ||
 		req.path === '/login' ||
 		req.path === '/register' ||
 		req.path === '/stitch' ||
@@ -115,7 +116,11 @@ const sendStitchHtml = (res, slug) => {
 	res.sendFile(path.join(stitchScreensDir, `${slug}.html`));
 };
 
-app.get('/', async (req, res, next) => {
+app.get('/', (req, res) => {
+	res.redirect('/storefront/home');
+});
+
+app.get('/catalogo', async (req, res, next) => {
 	try {
 		const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
 		const limit = 12;

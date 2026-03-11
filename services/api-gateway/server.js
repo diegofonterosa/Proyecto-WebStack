@@ -10,6 +10,7 @@ const app = express();
 
 const viewsDir = process.env.EJS_VIEWS_DIR || path.resolve(__dirname, '../../app/views');
 const publicAssetsDir = process.env.PUBLIC_ASSETS_DIR || path.resolve(__dirname, '../../app/public');
+const stitchScreensDir = path.join(publicAssetsDir, 'stitch-screens');
 
 const MAX_LATENCY_SAMPLES = 400;
 const dependencyTimeoutMs = Number(process.env.HEALTHCHECK_TIMEOUT_MS || 2000);
@@ -35,6 +36,10 @@ const pushLatencySample = (durationMs) => {
     if (appMetrics.latencySamplesMs.length > MAX_LATENCY_SAMPLES) {
         appMetrics.latencySamplesMs.shift();
     }
+};
+
+const sendStitchHtml = (res, slug) => {
+    res.sendFile(path.join(stitchScreensDir, `${slug}.html`));
 };
 
 const percentile = (values, p) => {
@@ -192,8 +197,13 @@ app.use((req, res, next) => {
 const verifyToken = (req, res, next) => {
     const isPublicPath =
         req.path === '/' ||
+        req.path === '/catalogo' ||
         req.path === '/login' ||
         req.path === '/register' ||
+        req.path === '/storefront' ||
+        req.path.startsWith('/storefront/') ||
+        req.path === '/admin' ||
+        req.path.startsWith('/admin/') ||
         req.path === '/carrito' ||
         req.path === '/search' ||
         req.path === '/categoria' ||
@@ -253,7 +263,11 @@ const fetchServiceJson = async (url) => {
 };
 
 // Vistas SSR (EJS)
-app.get('/', async (req, res, next) => {
+app.get('/', (req, res) => {
+    res.redirect('/storefront/home');
+});
+
+app.get('/catalogo', async (req, res, next) => {
     try {
         const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
         const limit = 12;
@@ -387,6 +401,29 @@ app.get('/carrito', async (req, res) => {
         categorias
     });
 });
+
+app.get('/storefront', (req, res) => res.redirect('/storefront/home'));
+app.get('/storefront/home', (req, res) => sendStitchHtml(res, 'home'));
+app.get('/storefront/catalog', (req, res) => sendStitchHtml(res, 'catalog'));
+app.get('/storefront/cart', (req, res) => sendStitchHtml(res, 'cart'));
+app.get('/storefront/checkout', (req, res) => sendStitchHtml(res, 'checkout'));
+
+app.get('/admin', (req, res) => res.redirect('/admin/dashboard'));
+app.get('/admin/dashboard', (req, res) => sendStitchHtml(res, 'admin-dashboard'));
+app.get('/admin/ssl', (req, res) => sendStitchHtml(res, 'ssl-dashboard'));
+app.get('/admin/products', (req, res) => sendStitchHtml(res, 'products-dashboard'));
+app.get('/admin/products/editor', (req, res) => sendStitchHtml(res, 'product-editor'));
+app.get('/admin/products/new', (req, res) => sendStitchHtml(res, 'add-product'));
+app.get('/admin/products/variants', (req, res) => sendStitchHtml(res, 'product-variants'));
+app.get('/admin/media', (req, res) => sendStitchHtml(res, 'media-library'));
+app.get('/admin/orders', (req, res) => sendStitchHtml(res, 'orders-dashboard'));
+app.get('/admin/orders/table', (req, res) => sendStitchHtml(res, 'orders-view'));
+app.get('/admin/customers', (req, res) => sendStitchHtml(res, 'customers-crm'));
+app.get('/admin/inventory/alerts', (req, res) => sendStitchHtml(res, 'low-stock-alerts'));
+app.get('/admin/reports/best-sellers', (req, res) => sendStitchHtml(res, 'best-selling-report'));
+app.get('/admin/settings/store', (req, res) => sendStitchHtml(res, 'global-settings'));
+app.get('/admin/marketing', (req, res) => sendStitchHtml(res, 'marketing-promotions'));
+app.get('/admin/users/roles', (req, res) => sendStitchHtml(res, 'roles-permissions'));
 
 app.get('/producto/:id', async (req, res, next) => {
     try {
