@@ -123,7 +123,7 @@
 <div class="flex-1 flex flex-col gap-6">
 <!-- Top Sorting Bar -->
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-<p class="text-slate-600 dark:text-slate-400 text-sm font-medium">Showing <span class="text-slate-900 dark:text-white font-bold">1-20</span> of 142 products</p>
+<p id="catalog-summary" class="text-slate-600 dark:text-slate-400 text-sm font-medium">Showing <span class="text-slate-900 dark:text-white font-bold">1-20</span> of 142 products</p>
 <div class="flex items-center gap-4 w-full sm:w-auto">
 <select class="form-select bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-sm font-medium focus:ring-primary w-full sm:w-48">
 <option>Sort by: Newest</option>
@@ -142,7 +142,7 @@
 </div>
 </div>
 <!-- Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+<div id="productos-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 <div class="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all duration-300">
 <div class="relative aspect-[3/4] overflow-hidden bg-slate-100">
 <div class="absolute top-3 left-3 z-10 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">New Arrival</div>
@@ -368,7 +368,7 @@ Quick Add
 </div>
 </div>
 </div>
-<div class="flex justify-center items-center gap-2 mt-8 py-4">
+<div id="catalog-pagination" class="flex justify-center items-center gap-2 mt-8 py-4">
 <button class="size-10 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-primary hover:border-primary transition-all">
 <span class="material-symbols-outlined">chevron_left</span>
 </button>
@@ -447,5 +447,111 @@ Quick Add
 </footer>
 </div>
 </div>
+<script src="/stitch-screens/api-utils.js"></script>
+<script>
+    const CATALOG_LIMIT = 20;
+    let catalogPage = 1;
+    let catalogPages = 1;
+
+    function renderCatalogCard(prod) {
+        const nombre = escapeHtml(prod.nombre || 'Producto');
+        const categoria = escapeHtml(prod.categoria || 'General');
+        const precio = Number.parseFloat(prod.precio || 0).toFixed(2);
+        const imagenUrl = escapeHtml(prod.imagen_url || '/images/placeholder.svg');
+
+        return `
+            <div class="group flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl transition-all duration-300">
+                <div class="relative aspect-[3/4] overflow-hidden bg-slate-100">
+                    <img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" src="${imagenUrl}" alt="${nombre}" onerror="this.src='/images/placeholder.svg'"/>
+                    <div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/60 to-transparent">
+                        <button onclick="agregarAlCarritoUI(${prod.id})" class="w-full py-2 bg-primary text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                            Quick Add
+                        </button>
+                    </div>
+                </div>
+                <div class="p-4 flex flex-col gap-1">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">${categoria}</p>
+                    <h4 class="text-slate-900 dark:text-white font-bold truncate">${nombre}</h4>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-primary font-bold text-lg">$${precio}</span>
+                        <span class="text-xs text-slate-500">Stock: ${Number(prod.stock || 0)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderPagination() {
+        const container = document.getElementById('catalog-pagination');
+        if (!container) return;
+
+        const prevDisabled = catalogPage <= 1 ? 'opacity-40 pointer-events-none' : '';
+        const nextDisabled = catalogPage >= catalogPages ? 'opacity-40 pointer-events-none' : '';
+
+        container.innerHTML = `
+            <button onclick="goToCatalogPage(${catalogPage - 1})" class="size-10 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-primary hover:border-primary transition-all ${prevDisabled}">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button class="size-10 flex items-center justify-center rounded-lg bg-primary text-white font-bold">${catalogPage}</button>
+            <button onclick="goToCatalogPage(${catalogPage + 1})" class="size-10 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-primary hover:border-primary transition-all ${nextDisabled}">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        `;
+    }
+
+    function updateSummary(total) {
+        const summary = document.getElementById('catalog-summary');
+        if (!summary) return;
+        const start = (catalogPage - 1) * CATALOG_LIMIT + 1;
+        const end = Math.min(catalogPage * CATALOG_LIMIT, total);
+        summary.innerHTML = `Showing <span class="text-slate-900 dark:text-white font-bold">${start}-${end}</span> of ${total} products`;
+    }
+
+    async function loadCatalog(page) {
+        const grid = document.getElementById('productos-grid');
+        if (!grid) return;
+
+        catalogPage = Math.max(page, 1);
+        grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-500">Cargando productos...</div>';
+
+        try {
+            const response = await getProductos(catalogPage, CATALOG_LIMIT);
+            const productos = Array.isArray(response?.datos) ? response.datos : [];
+            const pagination = response?.pagination || {};
+            const total = Number(pagination.total || productos.length);
+            catalogPages = Math.max(Number(pagination.pages || 1), 1);
+
+            if (productos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-slate-500">No hay productos disponibles</div>';
+            } else {
+                grid.innerHTML = productos.map(renderCatalogCard).join('');
+            }
+
+            updateSummary(total);
+            renderPagination();
+        } catch (error) {
+            grid.innerHTML = `<div class="col-span-full text-center py-12 text-red-500">Error cargando catálogo: ${escapeHtml(error.message || 'Error desconocido')}</div>`;
+        }
+    }
+
+    function goToCatalogPage(page) {
+        if (page < 1 || page > catalogPages) return;
+        loadCatalog(page);
+    }
+
+    async function agregarAlCarritoUI(productoId) {
+        try {
+            await agregarAlCarrito(productoId, 1);
+            alert('Producto agregado al carrito');
+        } catch (error) {
+            alert('No se pudo agregar al carrito');
+        }
+    }
+
+    window.goToCatalogPage = goToCatalogPage;
+    window.agregarAlCarritoUI = agregarAlCarritoUI;
+    document.addEventListener('DOMContentLoaded', () => loadCatalog(1));
+</script>
 <script src="/stitch-screens/nav.js"></script>
 </body></html>
