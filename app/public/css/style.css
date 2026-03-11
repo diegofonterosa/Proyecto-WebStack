@@ -1707,6 +1707,77 @@ body {
     min-width: 220px;
 }
 
+/* Stepper de cantidad */
+.qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid #ffd9c9;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ff5a2f;
+    transition: background 0.15s;
+    line-height: 1;
+}
+
+.qty-btn:hover:not(:disabled) {
+    background: #fff0ea;
+}
+
+.qty-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.qty-value {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-left: 1.5px solid #ffd9c9;
+    border-right: 1.5px solid #ffd9c9;
+    padding: 0 4px;
+    line-height: 32px;
+    display: inline-block;
+}
+
+/* Botón eliminar ítem */
+.btn-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 1.5px solid #ffd9c9;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    color: #c0392b;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.btn-remove:hover {
+    background: #fff0f0;
+    border-color: #c0392b;
+}
+
+.btn-remove svg {
+    width: 17px;
+    height: 17px;
+    pointer-events: none;
+}
+
 @media (max-width: 768px) {
     .auth-form h1,
     .auth-info h2 {
@@ -1733,6 +1804,15 @@ body {
     .cart-table td {
         border: none;
         padding: 6px 4px;
+    }
+
+    /* En móvil, la celda de eliminar queda inline */
+    .cart-table td:has(.btn-remove) {
+        text-align: right;
+    }
+
+    .qty-stepper {
+        display: inline-flex;
     }
 
     .btn-large-mobile {

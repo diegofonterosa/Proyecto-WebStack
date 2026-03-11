@@ -22,6 +22,7 @@
             <th>Precio</th>
             <th>Cantidad</th>
             <th>Subtotal</th>
+            <th>Eliminar</th>
           </tr>
         </thead>
         <tbody id="cart-items-body"></tbody>
@@ -99,6 +100,7 @@
         const subtotal = Number(item.precio || 0) * Number(item.cantidad || 0);
         const tr = document.createElement('tr');
         tr.className = 'cart-item';
+        tr.dataset.id = item.id;
         const imageSrc = item.imagen_url || '/images/placeholder.svg';
         tr.innerHTML = `
           <td>
@@ -108,11 +110,101 @@
             </div>
           </td>
           <td>${currency.format(Number(item.precio || 0))}</td>
-          <td>${item.cantidad}</td>
-          <td class="subtotal">${currency.format(subtotal)}</td>
+          <td>
+            <div class="qty-stepper">
+              <button type="button" class="qty-btn" data-action="dec" data-id="${item.id}" data-stock="${item.stock}" aria-label="Reducir cantidad">&#8722;</button>
+              <span class="qty-value" data-id="${item.id}">${item.cantidad}</span>
+              <button type="button" class="qty-btn" data-action="inc" data-id="${item.id}" data-stock="${item.stock}" aria-label="Aumentar cantidad">&#43;</button>
+            </div>
+          </td>
+          <td class="subtotal" data-id="${item.id}">${currency.format(subtotal)}</td>
+          <td>
+            <button type="button" class="btn-remove" data-id="${item.id}" aria-label="Eliminar producto">
+              <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5h14M8 5V3h4v2M6 5l1 12h6l1-12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </td>
         `;
         itemsBody.appendChild(tr);
       });
+
+      // Delegación de eventos en el tbody
+      itemsBody.onclick = async function (e) {
+        const qtyBtn = e.target.closest('.qty-btn');
+        const removeBtn = e.target.closest('.btn-remove');
+
+        if (qtyBtn) {
+          const id = qtyBtn.dataset.id;
+          const stock = Number(qtyBtn.dataset.stock);
+          const span = itemsBody.querySelector(`.qty-value[data-id="${id}"]`);
+          let current = Number(span.textContent);
+          const action = qtyBtn.dataset.action;
+
+          if (action === 'dec' && current <= 1) return;
+          if (action === 'inc' && current >= stock) return;
+
+          const next = action === 'dec' ? current - 1 : current + 1;
+          await updateQuantity(id, next);
+        }
+
+        if (removeBtn) {
+          await removeItem(removeBtn.dataset.id);
+        }
+      };
+    };
+
+    const updateQuantity = async function (itemId, cantidad) {
+      if (!token) return;
+      try {
+        const res = await fetch(`/api/carrito/${itemId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ cantidad })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo actualizar');
+        setMessage('', '');
+        await reloadCart();
+      } catch (err) {
+        setMessage(err.message, 'alert-error');
+      }
+    };
+
+    const removeItem = async function (itemId) {
+      if (!token) return;
+      try {
+        const res = await fetch(`/api/carrito/${itemId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'No se pudo eliminar');
+        setMessage('', '');
+        await reloadCart();
+      } catch (err) {
+        setMessage(err.message, 'alert-error');
+      }
+    };
+
+    const reloadCart = async function () {
+      if (!token) return;
+      try {
+        const response = await fetch('/api/carrito', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Error al cargar');
+        const items = Array.isArray(data.items) ? data.items : [];
+        if (items.length === 0) {
+          content.style.display = 'none';
+          emptyState.style.display = '';
+        } else {
+          renderItems(items);
+          setSummary(Number(data.total || 0));
+        }
+        if (typeof window.refreshCartCount === 'function') window.refreshCartCount();
+      } catch (err) {
+        setMessage(err.message, 'alert-error');
+      }
     };
 
     const loadCart = async function () {

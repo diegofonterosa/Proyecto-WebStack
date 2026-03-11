@@ -194,6 +194,53 @@ try {
         exit;
     }
 
+    // PUT /carrito/:id  — actualizar cantidad de un ítem
+    if (preg_match('/^\/carrito\/(\d+)$/', $path, $m) && $method === 'PUT') {
+        if (!$usuarioId) throw new Exception('No autenticado', 401);
+
+        $itemId = (int)$m[1];
+        $input = json_decode(file_get_contents('php://input'), true);
+
+        if (!is_array($input) || !isset($input['cantidad']) || (int)$input['cantidad'] < 1) {
+            throw new Exception('Cantidad inválida', 400);
+        }
+        $cantidad = (int)$input['cantidad'];
+
+        // Verificar que el ítem pertenece al usuario y hay stock suficiente
+        $stmt = $pdo->prepare('
+            SELECT p.stock FROM carrito c
+            JOIN productos p ON c.producto_id = p.id
+            WHERE c.id = ? AND c.usuario_id = ?
+        ');
+        $stmt->execute([$itemId, $usuarioId]);
+        $row = $stmt->fetch();
+
+        if (!$row) throw new Exception('Ítem no encontrado', 404);
+        if ($row['stock'] < $cantidad) throw new Exception('Stock insuficiente', 400);
+
+        $pdo->prepare('UPDATE carrito SET cantidad = ? WHERE id = ? AND usuario_id = ?')
+            ->execute([$cantidad, $itemId, $usuarioId]);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    // DELETE /carrito/:id  — eliminar un ítem del carrito
+    if (preg_match('/^\/carrito\/(\d+)$/', $path, $m) && $method === 'DELETE') {
+        if (!$usuarioId) throw new Exception('No autenticado', 401);
+
+        $itemId = (int)$m[1];
+        $stmt = $pdo->prepare('DELETE FROM carrito WHERE id = ? AND usuario_id = ?');
+        $stmt->execute([$itemId, $usuarioId]);
+
+        if ($stmt->rowCount() === 0) throw new Exception('Ítem no encontrado', 404);
+
+        http_response_code(200);
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
     // GET /health
     if ($path === '/health' && $method === 'GET') {
         http_response_code(200);
