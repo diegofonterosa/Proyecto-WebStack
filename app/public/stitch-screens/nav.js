@@ -197,6 +197,12 @@
 
       btn.dataset.addWired = "1";
       btn.addEventListener("click", function (event) {
+        var inlineHandler = btn.getAttribute("onclick") || "";
+        if (inlineHandler.indexOf("agregarAlCarritoUI(") !== -1) {
+          // Deja que el handler inline (con ID explícito) haga su trabajo.
+          return;
+        }
+
         event.preventDefault();
         event.stopPropagation();
 
@@ -210,12 +216,9 @@
           return;
         }
 
-        if (!productId) {
-          alert("No se pudo identificar el producto para agregar al carrito.");
-          return;
+        if (productId) {
+          goTo(CART_URL);
         }
-
-        goTo(CART_URL);
       });
     });
   }

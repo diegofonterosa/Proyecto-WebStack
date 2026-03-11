@@ -147,6 +147,7 @@
                 <p class="text-primary font-semibold text-base mt-2">$${itemPrice.toFixed(2)}</p>
               </div>
             </div>
+            <button onclick="eliminarDelCarrito(${Number(item.id)})" class="text-sm font-semibold text-red-600 hover:text-red-700 transition-colors">Eliminar</button>
           </div>
         `;
       });
@@ -179,7 +180,18 @@
     window.location.href = '/storefront/checkout';
   }
 
+  async function eliminarDelCarrito(itemId) {
+    if (!itemId) return;
+    try {
+      await apiCall(`/carrito/${itemId}`, { method: 'DELETE' });
+      await loadCarrito();
+    } catch (error) {
+      alert('No se pudo eliminar el producto del carrito');
+    }
+  }
+
   // Cargar carrito cuando carga la página
+  window.eliminarDelCarrito = eliminarDelCarrito;
   document.addEventListener('DOMContentLoaded', loadCarrito);
 </script>
 <script src="/stitch-screens/nav.js"></script>
