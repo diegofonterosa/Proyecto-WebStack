@@ -1,0 +1,61 @@
+name: E2E Smoke Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run CI sanity checks
+        run: bash archive/scripts/ci-sanity.sh
+
+  smoke-test:
+    needs: quality-check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare smoke script
+        run: chmod +x archive/scripts/e2e-smoke.sh
+
+      - name: Start required services
+        run: docker compose up -d mysql auth-service product-service order-service api-gateway
+
+      - name: Wait for gateway health
+        run: |
+          set -euo pipefail
+          for i in {1..60}; do
+            if curl -fsS http://localhost:5000/health >/dev/null; then
+              echo "Gateway is ready"
+              exit 0
+            fi
+            echo "Waiting for gateway... ($i/60)"
+            sleep 2
+          done
+          echo "Gateway did not become ready in time"
+          exit 1
+
+      - name: Run E2E smoke test
+        run: ./archive/scripts/e2e-smoke.sh
+
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail=200
+
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
