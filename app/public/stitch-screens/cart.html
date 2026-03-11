@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 
-<html lang="en"><head>
+<html lang="es"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta name="description" content="Revisa tu carrito de compra en Milfshakes, ajusta cantidades y finaliza tu pedido de forma segura."/>
+<meta name="robots" content="noindex,follow"/>
+<link rel="canonical" href="/storefront/cart"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Milfshakes | Carrito"/>
+<meta property="og:description" content="Gestiona productos y finaliza tu compra."/>
+<meta property="og:url" content="/storefront/cart"/>
 <title>Milfshakes Shopping Cart View</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
@@ -49,7 +57,7 @@
 <div class="text-slate-500 dark:text-slate-400 flex border-none bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border-r-0">
 <span class="material-symbols-outlined" style="font-size: 20px;">search</span>
 </div>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search" type="text" value=""/>
+<input aria-label="Buscar en carrito" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 dark:text-slate-100 focus:outline-0 focus:ring-0 border-none bg-slate-100 dark:bg-slate-800 focus:border-none h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search" type="text" value=""/>
 </div>
 </label>
 <div class="flex gap-2">
@@ -187,6 +195,7 @@
       loader.style.display = 'none';
       errorMsg.style.display = 'block';
       errorMsg.textContent = 'Error cargando carrito: ' + error.message;
+      showToast('Error cargando carrito', 'error');
       console.error('Error:', error);
     }
   }

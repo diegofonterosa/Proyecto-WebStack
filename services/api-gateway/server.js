@@ -39,6 +39,7 @@ const pushLatencySample = (durationMs) => {
 };
 
 const sendStitchHtml = (res, slug) => {
+    res.setHeader('Cache-Control', 'no-store, max-age=0');
     res.sendFile(path.join(stitchScreensDir, `${slug}.html`));
 };
 
@@ -151,7 +152,27 @@ const checkDependency = async (name, url, required = true) => {
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(publicAssetsDir));
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self'; frame-ancestors 'self';"
+    );
+    next();
+});
+app.use(express.static(publicAssetsDir, {
+    etag: true,
+    maxAge: '7d',
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-store, max-age=0');
+        }
+    }
+}));
 app.set('view engine', 'ejs');
 app.set('views', viewsDir);
 
