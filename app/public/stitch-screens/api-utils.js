@@ -9,7 +9,20 @@ const API_BASE_URL = '/api';
  * Obtener token JWT del localStorage
  */
 function getAuthToken() {
-  return localStorage.getItem('auth_token') || null;
+  const modernToken = localStorage.getItem('auth_token');
+  const legacyToken = localStorage.getItem('token');
+
+  if (modernToken) {
+    return modernToken;
+  }
+
+  // Compatibilidad con vistas antiguas que guardan en `token`.
+  if (legacyToken) {
+    localStorage.setItem('auth_token', legacyToken);
+    return legacyToken;
+  }
+
+  return null;
 }
 
 /**
@@ -18,8 +31,10 @@ function getAuthToken() {
 function setAuthToken(token) {
   if (token) {
     localStorage.setItem('auth_token', token);
+    localStorage.setItem('token', token);
   } else {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('token');
   }
 }
 
@@ -52,7 +67,9 @@ async function apiCall(endpoint, options = {}) {
 
     // Si 401, limpiar token y redirigir a login
     if (response.status === 401) {
-      setAuthToken(null);
+      if (token) {
+        setAuthToken(null);
+      }
       console.warn('Token expirado o inválido. Redirigiendo a login...');
       window.location.href = '/login';
       return null;

@@ -115,7 +115,7 @@
 
     try {
       const response = await getCarrito();
-      const items = response.datos || [];
+      const items = response.datos || response.items || [];
 
       loader.style.display = 'none';
 
