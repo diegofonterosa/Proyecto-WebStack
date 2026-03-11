@@ -66,6 +66,78 @@ Flujo de auth en vistas EJS:
 - `product.ejs` agrega al carrito via `POST /api/carrito/agregar` (Bearer token)
 - `carrito.ejs` consulta carrito en `GET /api/carrito` y checkout en `POST /api/pedidos/crear`
 
+## Pantallas Stitch (Sistema de Diseño)
+
+19 pantallas UI profesionales integradas desde el sistema de diseño Stitch. Servidas como archivos estáticos HTML sin wrapper EJS.
+
+### Rutas Storefront (4)
+
+- `GET /storefront/home` - Homepage con hero section + grid de categorías
+- `GET /storefront/catalog` - Catálogo de productos con overlay de imágenes
+- `GET /storefront/cart` - Carrito de compras + resumen de pedido
+- `GET /storefront/checkout` - Formulario de pago seguro
+
+### Rutas Admin CMS (15)
+
+**Dashboard & Overview**
+- `GET /admin/dashboard` - Resumen general de KPIs
+
+**Gestión de Productos**
+- `GET /admin/products` - Tabla de productos (diseño extendido)
+- `GET /admin/products/new` - Formulario crear nuevo producto
+- `GET /admin/products/editor` - Interfaz editar producto
+- `GET /admin/products/variants` - Gestión de variantes de producto
+
+**Gestión de Pedidos & Clientes**
+- `GET /admin/orders` - Tabla de pedidos (diseño extendido)
+- `GET /admin/orders/table` - Vista alternativa de órdenes
+- `GET /admin/customers` - CRM lista de clientes
+
+**Recurso & Media**
+- `GET /admin/media` - Librería de medios (grid extendido con previsualizaciones)
+- `GET /admin/inventory/alerts` - Alertas de bajo stock
+
+**Configuración & Negocios**
+- `GET /admin/settings/store` - Configuración global de tienda
+- `GET /admin/marketing` - Gestor de promociones y descuentos
+- `GET /admin/users/roles` - Roles y permisos de usuario
+- `GET /admin/ssl` - Dashboard de certificados SSL
+- `GET /admin/reports/best-sellers` - Análisis de productos bestsellers
+
+### Acceso Universa & Hub
+
+- `GET /stitch/:slug` - Acceso dinámico a cualquier pantalla por slug (ej: `/stitch/home`, `/stitch/products-dashboard`)
+- `GET /stitch` - Hub con lista completa de todas las pantallas
+
+### Arquitectura Técnica
+
+| Aspecto | Detalles |
+|---------|----------|
+| **Entrega** | Archivos estáticos HTML directos (sin rendering templating) |
+| **Ubicación** | `/app/public/stitch-screens/` (19 archivos `.html`) |
+| **Styling** | Tailwind CSS + Material Symbols icons (CDN Google Fonts) |
+| **Imágenes** | Assets locales `/app/public/images/stitch/` (12 JPGs - sin CDN externo) |
+| **Navegación** | Hardcoded `href` a rutas explícitas (0 placeholders dinámicos) |
+| **Modo rendering** | La ruta `/stitch/:slug` llama directo a `sendStitchHtml(res, slug)` |
+
+### Desarrollo & Debugging Local
+
+Las pantallas Stitch se renderizan automáticamente sin lógica dinámica (contenido estático). Para desarrollo local:
+
+```bash
+# Acceder a cualquier pantalla
+curl http://localhost:5000/storefront/home
+curl http://localhost:5000/admin/dashboard
+
+# Listar todas las pantallas disponibles
+curl http://localhost:5000/stitch
+```
+
+**Notas para integración futura:**
+- Data binding: Conectar producto editor/catálogo con endpoints `/api/productos`
+- Mock responses: Para testing sin backend, usar datos inline en HTML
+- Dark mode: Algunas pantallas (ej: `products-dashboard`) incluyen tema oscuro via Tailwind
+
 ## Imagenes de productos
 
 - Las rutas de BD (por ejemplo `/images/zapatos-azules.jpg`) deben existir dentro de `app/public/images`.
